@@ -73,8 +73,8 @@ export default function Settings() {
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="!bg-black !text-white px-4 py-2 text-sm font-medium rounded-lg 
-               hover:!bg-gray-800 transition-colors"
+              className="bg-black text-white px-4 py-2 text-sm font-medium rounded-lg 
+               hover:bg-gray-800 transition-colors"
             >
               Edit
             </button>
@@ -82,8 +82,8 @@ export default function Settings() {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="!bg-blue-600 !text-white px-4 py-2 text-sm font-medium rounded-lg 
-               hover:!bg-blue-700 transition-colors disabled:opacity-50"
+              className="bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-lg 
+               hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
               {isSaving ? "Saving..." : "Save All Changes"}
             </button>
@@ -111,9 +111,12 @@ export default function Settings() {
                   value={platformDetails.name}
                   disabled={!isEditing}
                   onChange={(e) => handleDetailChange("name", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                    disabled:bg-gray-100 disabled:text-gray-500"
+                    ${!isEditing 
+                      ? "bg-gray-50 text-gray-500 cursor-not-allowed" 
+                      : "bg-white text-gray-900"
+                    }`}
                 />
               </div>
 
@@ -127,9 +130,12 @@ export default function Settings() {
                   value={platformDetails.url}
                   disabled={!isEditing}
                   onChange={(e) => handleDetailChange("url", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                    disabled:bg-gray-100 disabled:text-gray-500"
+                    ${!isEditing 
+                      ? "bg-gray-50 text-gray-500 cursor-not-allowed" 
+                      : "bg-white text-gray-900"
+                    }`}
                 />
               </div>
             </div>
@@ -146,9 +152,13 @@ export default function Settings() {
                 onChange={(e) =>
                   handleDetailChange("description", e.target.value)
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
+                className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                  disabled:bg-gray-100 disabled:text-gray-500 resize-none"
+                  resize-none
+                  ${!isEditing 
+                    ? "bg-gray-50 text-gray-500 cursor-not-allowed" 
+                    : "bg-white text-gray-900"
+                  }`}
               />
             </div>
 
@@ -164,9 +174,12 @@ export default function Settings() {
                   onChange={(e) =>
                     handleDetailChange("timezone", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                    disabled:bg-gray-100 disabled:text-gray-500"
+                    ${!isEditing 
+                      ? "bg-gray-50 text-gray-500 cursor-not-allowed" 
+                      : "bg-white text-gray-900"
+                    }`}
                 >
                   <option value="UTC">UTC</option>
                   <option value="EST">EST</option>
@@ -185,9 +198,12 @@ export default function Settings() {
                   onChange={(e) =>
                     handleDetailChange("currency", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                    disabled:bg-gray-100 disabled:text-gray-500"
+                    ${!isEditing 
+                      ? "bg-gray-50 text-gray-500 cursor-not-allowed" 
+                      : "bg-white text-gray-900"
+                    }`}
                 >
                   <option value="INR">INR</option>
                   <option value="USD">USD</option>
