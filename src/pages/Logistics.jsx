@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useRef ,useEffect } from 'react';
 import { CheckCircle, Truck, Clock, AlertCircle, Package, Filter, ChevronDown, X, MapPin } from 'lucide-react';
 
 const ShipmentTrackingModal = ({ selectedShipment, onClose }) => {
@@ -149,11 +149,25 @@ const Logistics = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [trackingModal, setTrackingModal] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState(null);
+  const dropdownRef = useRef(null);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // if click is outside dropdown, close it
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   const shipments = [
     {
       id: 'SHIP-001',
-      value: '₹79,623.00',
+      value: '79,623.00',
       route: 'Hyderabad',
       estDelivery: '12/07/2025',
       rating: 4.8,
@@ -185,7 +199,7 @@ const Logistics = () => {
     },
     {
       id: 'SHIP-003',
-      value: '₹1,423.53',
+      value: '1,423.53',
       route: 'Visakhapatnam',
       estDelivery: '12/07/2025',
       rating: 3.2,
@@ -201,7 +215,7 @@ const Logistics = () => {
     },
     {
       id: 'SHIP-004',
-      value: '₹56,623.00',
+      value: '56,623.00',
       route: 'Gujarat',
       estDelivery: '12/07/2025',
       rating: 4.8,
@@ -217,7 +231,7 @@ const Logistics = () => {
     },
     {
       id: 'SHIP-005',
-      value: '₹150.00',
+      value: '150.00',
       route: 'Hyderabad',
       estDelivery: '12/07/2025',
       rating: 4.5,
@@ -347,34 +361,40 @@ const Logistics = () => {
                 <h2 className="text-xl font-bold text-gray-900">Active Shipments</h2>
                 <p className="text-gray-600">Real-time tracking of all shipments</p>
               </div>
-              <div className="relative">
-                <button 
-                  onClick={() => setFilterOpen(!filterOpen)}
-                  className="flex items-center space-x-2 px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
-                >
-                  <Filter className="w-4 h-4" />
-                  <span>Filter By</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                {filterOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-10">
-                    <div className="p-2">
-                      {['All', 'Active', 'Pending', 'Declined'].map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => {
-                            setFilterBy(option);
-                            setFilterOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+            <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation(); // prevent immediate outside closing
+          setFilterOpen(!filterOpen);
+        }}
+        className="flex items-center space-x-2 px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+      >
+        <Filter className="w-4 h-4" />
+        <span>Filter By</span>
+        <ChevronDown className="w-4 h-4" />
+      </button>
+
+      {filterOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-10">
+          <div className="p-2">
+            {["All", "Active", "Pending", "Declined"].map((option) => (
+              <button
+                key={option}
+                onClick={(e) => {
+                  e.stopPropagation(); // stop closing immediately
+                  setFilterBy(option);
+                  setFilterOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  
             </div>
           </div>
           

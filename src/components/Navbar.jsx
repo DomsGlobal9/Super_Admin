@@ -15,10 +15,10 @@ const Navbar = ({ toggleSidebar }) => {
 
         {/* Search bar */}
         <div className="hidden sm:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-60 md:w-80">
-          <span className="text-gray-400 mr-2">🔍</span>
+          {/* <span className="text-gray-400 mr-2">🔍</span> */}
           <input
             type="text"
-            placeholder="Search vendors.com"
+            placeholder="Search "
             className="flex-1 outline-none text-sm text-gray-600"
           />
         </div>

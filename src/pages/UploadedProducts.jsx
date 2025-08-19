@@ -58,10 +58,10 @@ export default function UploadedProducts() {
   };
 
   const productsList = [
-    { name: "Summer Floral Dress", sku: "FF-SFD-001", category: "Clothing Women", status: "Approved", price: "₹250", stock: 230 },
-    { name: "Casual Summer Shorts", sku: "FF-CSS-002", category: "Clothing Women", status: "Approved", price: "₹178", stock: 76 },
-    { name: "Summer Floral Dress", sku: "FF-SFD-003", category: "Clothing Women", status: "Rejected", price: "₹312", stock: 12 },
-    { name: "Summer Floral Dress", sku: "FF-SFD-004", category: "Clothing Shorts", status: "Pending", price: "₹213", stock: 23 }
+    { name: "Summer Floral Dress", sku: "FF-SFD-001", category: "Clothing Women", status: "Approved", price: "250", stock: 230 },
+    { name: "Casual Summer Shorts", sku: "FF-CSS-002", category: "Clothing Women", status: "Approved", price: "178", stock: 76 },
+    { name: "Summer Floral Dress", sku: "FF-SFD-003", category: "Clothing Women", status: "Rejected", price: "312", stock: 12 },
+    { name: "Summer Floral Dress", sku: "FF-SFD-004", category: "Clothing Shorts", status: "Pending", price: "213", stock: 23 }
   ];
 
   const productDetails = {
@@ -69,9 +69,9 @@ export default function UploadedProducts() {
     sku: "FF-SFD-001",
     status: "Approved",
     pricing: {
-      mrp: "₹319",
-      salePrice: "₹287",
-      costPrice: "₹178"
+      MRP: "319",
+      salePrice: "287",
+      costPrice: "178"
     },
     attributes: {
       brand: "Zara Woman",
@@ -354,7 +354,7 @@ export default function UploadedProducts() {
               <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 text-center shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">{category.name}</h4>
                 <p className="text-3xl font-bold text-gray-900 mb-2">{category.count}</p>
-                <p className="text-sm text-gray-500">{category.products}</p>
+                {/* <p className="text-sm text-gray-500">{category.products}</p> */}
               </div>
             ))}
           </div>
@@ -419,10 +419,12 @@ export default function UploadedProducts() {
   );
 
   const renderProductModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4 shadow-xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex  items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-8 w-full max-w-4xl overflow-y-auto hide-scrollbar max-h-[90vh] overflow-y-auto m-4 shadow-xl">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-900">Product Details</h2>
+          <h2 className="text-3xl font-semibold text-green-700">Product Details</h2>
+
+          <div className="bg-green-50 text-green-700 border border-green-200"></div>
           <button 
             onClick={() => setShowProductModal(false)}
             className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
@@ -435,7 +437,7 @@ export default function UploadedProducts() {
           {/* Left side - Product info */}
           <div>
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{productDetails.name}</h3>
+              <h3 className="text-lg font-semibold  text-gray-900 mb-2">{productDetails.name}</h3>
               <p className="text-sm text-gray-500 mb-3">SKU: {productDetails.sku}</p>
               <StatusPill status={productDetails.status} />
             </div>
@@ -488,7 +490,7 @@ export default function UploadedProducts() {
             <div className="w-80 h-56 flex items-center justify-center ">
               <div className="text-center text-gray-400">
                 {/* <div className="w-32 h-40 bg-gray-300 rounded-lg mx-auto mb-4 shadow-sm"></div> */}
-                <img src={Model} alt="" />
+                <img src={Model}  className="h-96 mt-50" alt="" />
                 {/* <p className="text-sm font-medium">Product Image</p>
                 <p className="text-xs text-gray-500 mt-1">No image available</p> */}
               </div>
@@ -523,8 +525,8 @@ export default function UploadedProducts() {
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Product Uploads</h1>
-            <p className="text-sm text-gray-600 mt-1">Monitor and manage bulk product uploads from vendors</p>
+            <h1 className="text-2xl font-bold text-gray-900">Uploaded Products</h1>
+            <p className="text-sm  mt-4 text-gray-600 mt-1">Monitor and manage bulk product uploads from vendors</p>
           </div>
           {currentView !== 'dashboard' && (
             <button 

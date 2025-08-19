@@ -295,7 +295,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Revenue Analysis</h2>
             <div className="flex items-center space-x-4">
-              <select className="text-sm border border-gray-300 rounded px-3 py-1 bg-white">
+              <select className="text-1xl font-semibold bg-white text-gray-600 rounded px-3 py-1 ">
                 <option>Weekly</option>
                 <option>Monthly</option>
                 <option>Yearly</option>
@@ -338,33 +338,34 @@ const Dashboard = () => {
         </div>
 
         {/* Commission Categories Pie Chart */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border">
+        <div className="bg-white rounded-lg p-6 ">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Commission Categories</h2>
           </div>
           
           <div className="flex flex-col items-center">
-            <div className="relative">
-              <ResponsiveContainer width={200} height={200}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    startAngle={90}
-                    endAngle={450}
-                    paddingAngle={0}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+          <div className="focus:outline-none hover:outline-none">
+  <ResponsiveContainer width={200} height={200}>
+    <PieChart>
+      <Pie
+        data={pieData}
+        cx="50%"
+        cy="50%"
+        innerRadius={60}
+        outerRadius={90}
+        startAngle={90}
+        endAngle={450}
+        dataKey="value"
+        className="focus:outline-none hover:outline-none"
+      >
+        {pieData.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={entry.color} />
+        ))}
+      </Pie>
+    </PieChart>
+  </ResponsiveContainer>
+</div>
+
             
             <div className="flex items-center justify-center space-x-6 mt-4">
               <div className="flex items-center">

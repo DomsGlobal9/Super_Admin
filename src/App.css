@@ -8,6 +8,17 @@
   text-align: center;
 }
 
+/* Works for Chrome, Edge, Safari */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Works for Firefox */
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+
 .logo {
   height: 6em;
   padding: 1.5em;

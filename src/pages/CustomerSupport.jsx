@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState ,useRef, useEffect} from "react";
 import ic_cust1 from "../assets/ic_customer1.png";
 import user from "../assets/user.png";
 import agent from "../assets/agent.png";
@@ -295,6 +295,24 @@ export default function CustomerSupport() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [modalTicket, setModalTicket] = useState(null);
 
+
+    const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setFilterOpen(false); // close if clicked outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
+
   const tickets = useMemo(() => {
     let list = RAW_TICKETS;
     if (statusFilter !== "All") list = list.filter((t) => t.status === statusFilter);
@@ -380,55 +398,55 @@ export default function CustomerSupport() {
             </div>
           </div>
 
-          <div className="relative">
-            <button
-              onClick={() => setFilterOpen((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Filters By <ChevronDown className="h-4 w-4" />
-            </button>
-
-            {filterOpen && (
-              <div className="absolute right-0 z-10 mt-2 w-40 overflow-hidden rounded-lg bg-white border border-slate-200 shadow-lg">
-                {[
-                  "All",
-                  "Completed",
-                  "Processing",
-                  "Pending",
-                  "Failed",
-                ].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      setStatusFilter(s);
-                      setFilterOpen(false);
-                    }}
-                    className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
-                      statusFilter === s ? "bg-slate-100" : ""
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <div className="relative" ref={dropdownRef}>
+  {/* <button
+    onClick={() => setFilterOpen((v) => !v)} // Remove stopPropagation from here
+    className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+  >
+    {statusFilter} <ChevronDown className="h-4 w-4" />
+  </button> */}
+  
+  {filterOpen && (
+    <div
+      className="absolute right-0 z-10 mt-2 w-40 overflow-hidden rounded-lg bg-white border border-slate-200 shadow-lg"
+      // Remove stopPropagation from here too - the ref handles outside clicks
+    >
+      {["All", "Completed", "Processing", "Pending", "Failed"].map((s) => (
+        <button
+          key={s}
+          onClick={() => {
+            setStatusFilter(s);
+            setFilterOpen(false);
+          }}
+          className={`block w-full px-3 py-2 text-left text-sm text-black hover:bg-slate-50 ${
+            statusFilter === s ? "bg-slate-100" : ""
+          }`}
+        >
+          {s}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
         </div>
 
         {/* Table */}
         <section className="mt-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-slate-800">Support Tickets</div>
+              <div className="text-lg font-semibold text-slate-800">Support Tickets</div>
               <div className="text-xs text-slate-500">Assisting with ticket support and resolution</div>
             </div>
             <div className="relative">
-              <button
-                onClick={() => setFilterOpen((v) => !v)}
-                className="inline-flex items-center gap-1  px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Filter By <ChevronDown className="h-3 w-3" />
-              </button>
+            <button
+        onClick={(e) => {
+          e.stopPropagation(); // prevent closing on click
+          setFilterOpen((v) => !v);
+        }}
+        className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      >
+        {statusFilter} <ChevronDown className="h-4 w-4" />
+      </button>
             </div>
           </div>
 

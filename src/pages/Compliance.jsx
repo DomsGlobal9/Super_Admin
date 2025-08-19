@@ -226,8 +226,8 @@ function KYCReviewModal({ open, onClose, onDecision }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-2 sm:p-4">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-5xl max-h-[90vh] overflow-y-auto relative">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50  overflow-y-auto hide-scrollbar p-2 sm:p-4">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-5xl overflow-y-auto hide-scrollbar max-h-[90vh] overflow-y-auto relative">
         {/* Header */}
         <div className="sticky top-0 bg-white rounded-t-xl p-4 sm:p-6 border-b">
           <button

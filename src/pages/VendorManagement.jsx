@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { X, User, Package, DollarSign, AlertTriangle, Clock, Trash2 } from "lucide-react";
 
+
 const vendorsData = [
   {
     id: 1,
     name: "Fashion Forward Ltd",
     email: "contact@fashionforward.com",
-    revenue: "$19,623.00",
+    revenue: "19,623.00",
     orders: 4242,
     rating: "4.8★",
     status: "Active",
@@ -18,7 +19,7 @@ const vendorsData = [
     id: 2,
     name: "Style Trends Inc",
     email: "support@styletrends.com",
-    revenue: "$15,210.00",
+    revenue: "15,210.00",
     orders: 3121,
     rating: "4.5★",
     status: "Pending",
@@ -30,7 +31,7 @@ const vendorsData = [
     id: 3,
     name: "Urban Wear Co",
     email: "hello@urbanwear.com",
-    revenue: "$8,765.00",
+    revenue: "8,765.00",
     orders: 1980,
     rating: "4.2★",
     status: "Declined",
@@ -100,7 +101,7 @@ export default function VendorManagement() {
       </div>
 
       {/* Table Container */}
-      <div className="p-3 sm:p-6 bg-blue-50 min-h-screen min-w-full">
+      <div className="p-3 sm:p-6 bg-white min-h-screen min-w-full">
         {/* Desktop Table View */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -229,8 +230,8 @@ export default function VendorManagement() {
 
       {/* Vendor Details Modal */}
       {selectedVendor && !showRemoveConfirm && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl mx-4">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center  overflow-y-auto hide-scrollbar p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto overflow-y-auto hide-scrollbar shadow-xl mx-4">
             {/* Header with close button */}
             <div className="flex items-center justify-between p-4 sm:p-6 pb-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
@@ -332,14 +333,16 @@ export default function VendorManagement() {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3 pt-4">
-                <button 
-                  className="w-full text-white px-4 py-3 rounded-lg font-medium transition-colors"
-                  style={{backgroundColor: '#2563eb'}}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-                >
-                  View Products ({selectedVendor.products})
-                </button>
+              <button 
+  className="w-full text-white px-4 py-3 rounded-lg font-medium transition-colors"
+  onClick={() => navigate("")}
+  style={{ backgroundColor: "#2563eb" }}
+  onMouseEnter={(e) => (e.target.style.backgroundColor = "#1d4ed8")}
+  onMouseLeave={(e) => (e.target.style.backgroundColor = "#2563eb")}
+>
+<a href="./product-inventory"> View Products ({selectedVendor.products})</a>  
+</button>
+
                 <button 
                   onClick={handleRemoveClick}
                   className="w-full text-white px-4 py-3 rounded-lg font-medium transition-colors"

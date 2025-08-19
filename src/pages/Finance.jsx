@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { X } from "lucide-react";
-import ic1 from '../assets/compilance_icon1.png';
 
 const FinancePage = () => {
   const payoutsData = [
@@ -34,12 +33,16 @@ const FinancePage = () => {
     if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto">
-        <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <div className="fixed inset-0 transition-opacity bg-black bg-opacity-40" onClick={onClose}></div>
-          <div className="inline-block align-bottom bg-white rounded-lg shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            {children}
-          </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+          onClick={onClose}
+        ></div>
+        
+        {/* Modal Content */}
+        <div className="relative bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          {children}
         </div>
       </div>
     );
@@ -59,11 +62,10 @@ const FinancePage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm font-medium">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">$40,689</p>
+              <p className="text-2xl font-bold text-gray-900 mt-2">₹40,689</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              {/* <div className="w-6 h-6 bg-blue-600 rounded"></div> */}
-              <img src={ic1} alt="" />
+              <div className="w-6 h-6 bg-blue-600 rounded"></div>
             </div>
           </div>
         </div>
@@ -72,11 +74,10 @@ const FinancePage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm font-medium">B2B Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">$68,998</p>
+              <p className="text-2xl font-bold text-gray-900 mt-2">₹68,998</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              {/* <div className="w-6 h-6 bg-green-600 rounded"></div> */}
-                 <img src={ic1} alt="" />
+              <div className="w-6 h-6 bg-green-600 rounded"></div>
             </div>
           </div>
         </div>
@@ -85,11 +86,10 @@ const FinancePage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm font-medium">B2C Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">$79,876</p>
+              <p className="text-2xl font-bold text-gray-900 mt-2">₹79,876</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              {/* <div className="w-6 h-6 bg-purple-600 rounded"></div> */}
-                 <img src={ic1} alt="" />
+              <div className="w-6 h-6 bg-purple-600 rounded"></div>
             </div>
           </div>
         </div>
@@ -101,8 +101,7 @@ const FinancePage = () => {
               <p className="text-2xl font-bold text-gray-900 mt-2">102</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              {/* <div className="w-6 h-6 bg-orange-600 rounded"></div> */}
-                 <img src={ic1} alt="" />
+              <div className="w-6 h-6 bg-orange-600 rounded"></div>
             </div>
           </div>
         </div>
@@ -115,8 +114,17 @@ const FinancePage = () => {
             <h2 className="text-xl font-semibold text-gray-900">Revenue Analysis</h2>
             <p className="text-gray-500 text-sm mt-1">Monthly revenue comparison</p>
           </div>
-          <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
-            Weekly
+          <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100  rounded-lg hover:bg-gray-200 transition-colors">
+          <select
+  className="px-4 text-sm font-medium text-gray-700  
+             rounded-lg transition-colors
+             focus:outline-none  "
+>
+  <option>Weekly</option>
+  <option>Monthly</option>
+  <option>Yearly</option>
+</select>
+
           </button>
         </div>
         <div className="h-80">
@@ -180,7 +188,7 @@ const FinancePage = () => {
                     <div className="font-medium text-gray-900">{p.vendor}</div>
                     <div className="text-sm text-gray-500">{p.vendorEmail}</div>
                   </td>
-                  <td className="py-4 px-4 font-semibold text-gray-900">${p.amount}</td>
+                  <td className="py-4 px-4 font-semibold text-gray-900">₹{p.amount}</td>
                   <td className="py-4 px-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       p.channel === 'B2B' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
@@ -213,8 +221,8 @@ const FinancePage = () => {
       {/* Modal */}
       <Modal isOpen={!!selectedPayout} onClose={() => setSelectedPayout(null)}>
         {selectedPayout && (
-          <div className="p-6">
-            <div className="flex justify-between items-start mb-6">
+          <div className="p-6 overflow-y-auto hide-scrollbar">
+            <div className="flex justify-between  overflow-y-auto hide-scrollbar items-start mb-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Vendor Payout Details</h3>
                 <p className="text-gray-500 text-sm">Payout ID: #{selectedPayout.id}</p>
@@ -239,7 +247,7 @@ const FinancePage = () => {
 
             {/* Amount */}
             <div className="mb-6">
-              <p className="text-3xl font-bold text-gray-900">${selectedPayout.amount}</p>
+              <p className="text-3xl font-bold text-gray-900">₹{selectedPayout.amount}</p>
               <p className="text-sm text-red-600 mt-1">
                 {selectedPayout.status === 'Pending' ? 'Overdue' : 'On Time'}
               </p>
@@ -348,3 +356,4 @@ const FinancePage = () => {
 };
 
 export default FinancePage;
+// import ic1 from '../assets/compilance_icon1.png';
