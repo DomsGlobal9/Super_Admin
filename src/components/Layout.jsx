@@ -1,16 +1,19 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
 const Layout = () => {
+  const [open, setOpen] = useState(false); // central sidebar state
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar (gets open + setOpen) */}
+      <Sidebar open={open} setOpen={setOpen} />
 
-      {/* Main content should take ALL remaining width */}
+      {/* Main content */}
       <div className="flex flex-col flex-1 w-full bg-gray-50">
-        <Navbar />
+        <Navbar toggleSidebar={() => setOpen(!open)} />
         <main className="flex-1 w-full h-full overflow-y-auto p-6">
           <Outlet />
         </main>

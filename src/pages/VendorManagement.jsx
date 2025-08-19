@@ -74,22 +74,22 @@ export default function VendorManagement() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen min-w-full">
+    <div className="p-3 sm:p-6 bg-gray-50 min-h-screen min-w-full">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold text-gray-800">Vendor management</h2>
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Vendor management</h2>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <input
             type="text"
             placeholder="Search vendors..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-white text-black px-4 py-2 w-64 rounded-lg border"
+            className="bg-white text-black px-4 py-2 w-full sm:w-64 rounded-lg border"
           />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="bg-white text-black rounded-lg px-4 py-2 border"
+            className="bg-white text-black rounded-lg px-4 py-2 border w-full sm:w-auto"
           >
             <option value="All">Filter by</option>
             <option value="Active">Active</option>
@@ -99,9 +99,10 @@ export default function VendorManagement() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="p-6 bg-blue-50 min-h-screen min-w-full">
-        <div className="overflow-x-auto">
+      {/* Table Container */}
+      <div className="p-3 sm:p-6 bg-blue-50 min-h-screen min-w-full">
+        {/* Desktop Table View */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="text-gray-700">
               <tr>
@@ -164,15 +165,75 @@ export default function VendorManagement() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card View */}
+        <div className="lg:hidden space-y-4">
+          {filteredVendors.length > 0 ? (
+            filteredVendors.map((vendor, index) => (
+              <div
+                key={vendor.id}
+                className="bg-white rounded-lg p-4 shadow-sm border"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 truncate">{vendor.name}</h3>
+                    <p className="text-sm text-gray-500 truncate">{vendor.email}</p>
+                  </div>
+                  <span
+                    className={`ml-2 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      vendor.status === "Active"
+                        ? "bg-green-100 text-green-700"
+                        : vendor.status === "Pending"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {vendor.status}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                  <div>
+                    <span className="text-gray-500">Revenue:</span>
+                    <div className="font-medium text-gray-900">{vendor.revenue}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Orders:</span>
+                    <div className="font-medium text-gray-900">{vendor.orders}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Rating:</span>
+                    <div className="font-medium text-gray-900">{vendor.rating}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Products:</span>
+                    <div className="font-medium text-gray-900">{vendor.products}</div>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => setSelectedVendor(vendor)}
+                  className="w-full text-blue-600 text-sm hover:underline text-left"
+                >
+                  View Details →
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              No vendors found.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Vendor Details Modal */}
       {selectedVendor && !showRemoveConfirm && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-xl">
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl mx-4">
             {/* Header with close button */}
-            <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900">
+            <div className="flex items-center justify-between p-4 sm:p-6 pb-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                 Vendor Details
               </h3>
               <button
@@ -184,7 +245,7 @@ export default function VendorManagement() {
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6">
               {/* Vendor Name */}
               <div>
                 <h4 className="text-lg font-medium text-gray-900">
@@ -193,12 +254,12 @@ export default function VendorManagement() {
               </div>
 
               {/* Contact Info Grid */}
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     Email
                   </p>
-                  <p className="text-sm text-gray-900">{selectedVendor.email}</p>
+                  <p className="text-sm text-gray-900 break-all">{selectedVendor.email}</p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
@@ -239,33 +300,33 @@ export default function VendorManagement() {
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     Revenue
                   </p>
-                  <p className="text-xl font-semibold text-gray-900">{selectedVendor.revenue}</p>
+                  <p className="text-lg sm:text-xl font-semibold text-gray-900">{selectedVendor.revenue}</p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     Order Count
                   </p>
-                  <p className="text-xl font-semibold text-gray-900">{selectedVendor.orders}</p>
+                  <p className="text-lg sm:text-xl font-semibold text-gray-900">{selectedVendor.orders}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     Products Listed
                   </p>
-                  <p className="text-xl font-semibold text-gray-900">{selectedVendor.products}</p>
+                  <p className="text-lg sm:text-xl font-semibold text-gray-900">{selectedVendor.products}</p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     Rating
                   </p>
-                  <p className="text-xl font-semibold text-gray-900">{selectedVendor.rating}</p>
+                  <p className="text-lg sm:text-xl font-semibold text-gray-900">{selectedVendor.rating}</p>
                 </div>
               </div>
 
@@ -297,7 +358,7 @@ export default function VendorManagement() {
       {/* Remove Confirmation Modal */}
       {showRemoveConfirm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-96 p-6">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm sm:max-w-md mx-4 p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Remove Vendor?</h3>
@@ -319,28 +380,28 @@ export default function VendorManagement() {
               <h4 className="text-sm font-semibold text-gray-900 mb-3">Vendor Details</h4>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <User className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-700">{selectedVendor?.name}</span>
+                  <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <span className="text-sm text-gray-700 truncate">{selectedVendor?.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Package className="w-4 h-4 text-gray-500" />
+                  <Package className="w-4 h-4 text-gray-500 flex-shrink-0" />
                   <span className="text-sm text-gray-700">Products</span>
                   <span className="text-sm font-medium text-gray-900">{selectedVendor?.products}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <DollarSign className="w-4 h-4 text-gray-500" />
+                  <DollarSign className="w-4 h-4 text-gray-500 flex-shrink-0" />
                   <span className="text-sm text-gray-700">Revenue</span>
                   <span className="text-sm font-medium text-gray-900">{selectedVendor?.revenue}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Clock className="w-4 h-4 text-gray-500" />
+                  <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
                   <span className="text-sm text-gray-700">12 Pending Orders</span>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleCancelRemove}
                 className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
@@ -361,7 +422,7 @@ export default function VendorManagement() {
       {/* Remove Success Modal */}
       {showRemoveSuccess && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-80 p-6 text-center">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-xs sm:max-w-sm mx-4 p-4 sm:p-6 text-center">
             {/* Success Icon */}
             <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <Trash2 className="w-6 h-6 text-red-600" />
