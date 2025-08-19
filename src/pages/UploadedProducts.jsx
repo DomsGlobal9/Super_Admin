@@ -42,7 +42,7 @@ export default function UploadedProducts() {
       fileSize: "2.4 MB",
       uploadDate: "18-06-2024",
       processingTime: "2m 45s",
-      responsibility: "john.doe@fashionforward.com"
+      Uploadedby : "john.doe@fashionforward.com"
     },
     processingStats: {
       allItems: 250,

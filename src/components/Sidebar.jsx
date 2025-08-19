@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import dvyb from "../assets/dvyb_logo.png";
+import dvyb from "../assets/dvybeLogo.png";
+
 import {
   Home, Package, Truck, FileText, Bell, DollarSign,
   Headphones, Clipboard, Settings, LogOut
@@ -11,8 +12,8 @@ const Sidebar = ({ open, setOpen }) => {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 bg-white shadow-md flex-col justify-between">
         <div>
-  <div className="flex items-center justify-center h-16 bg-blue-900 text-white font-bold text-xl">
-              <img src={dvyb} className="object-cover h-full w-full" alt="" />
+  <div className="flex items-center justify-center h-16 bg-[#D1DCEB] text-white font-bold text-xl">
+              <img src={dvyb} className="object-contain  " alt="" />
             </div>
           <nav className="mt-4 px-4 space-y-2">
            <a
@@ -69,9 +70,9 @@ const Sidebar = ({ open, setOpen }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div>
-            <div className="flex items-center justify-center h-16 bg-blue-900 text-white font-bold text-xl">
-              <img src={dvyb} className="object-cover h-full w-full" alt="" />
-            </div>
+            {/* <div className="flex items-center justify-center h-16 bg-blue-900 text-white font-bold text-xl"> */}
+              {/* <img src={dvyb} className="object-cover h-full w-full" alt="" /> */}
+            {/* </div> */}
            <nav className="mt-4 px-4 space-y-2">
   <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 p-2 text-gray-600 rounded-lg hover:bg-blue-50">
     <Home size={20} /> Dashboard

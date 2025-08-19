@@ -1,8 +1,9 @@
 import { Bell, Menu } from "lucide-react";
+import dvyb from "../assets/dvybeLogo.png";
 
 const Navbar = ({ toggleSidebar }) => {
   return (
-    <header className="bg-white border-b shadow-sm flex items-center justify-between px-6 py-3">
+    <header className="bg-[#D1DCEB] border-b shadow-sm  flex items-center justify-between px-6 py-3">
       <div className="flex items-center gap-3">
         {/* Hamburger for mobile */}
         <button
@@ -13,19 +14,21 @@ const Navbar = ({ toggleSidebar }) => {
           <Menu size={24} />
         </button>
 
-        {/* Search bar */}
-        <div className="hidden sm:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-60 md:w-80">
+      
+      </div>
+ <img src={dvyb} className="block lg:hidden" alt="" />
+      {/* Right side (notifications + profile) */}
+      <div className="flex items-center gap-6">
+
+          {/* Search bar */}
+        <div className="hidden sm:flex items-center border border-white   w-72 rounded-lg px-3 py-2  ">
           {/* <span className="text-gray-400 mr-2">🔍</span> */}
           <input
             type="text"
             placeholder="Search "
-            className="flex-1 outline-none text-sm text-gray-600"
+            className="flex-1 outline-none placeholder-white px-6 text-sm text-white"
           />
         </div>
-      </div>
-
-      {/* Right side (notifications + profile) */}
-      <div className="flex items-center gap-6">
         <div className="relative cursor-pointer">
           <Bell className="text-gray-600" size={22} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
@@ -35,7 +38,7 @@ const Navbar = ({ toggleSidebar }) => {
         <div className="flex items-center gap-3">
           <img src="https://i.pravatar.cc/40" alt="profile" className="w-10 h-10 rounded-full" />
           <div className="hidden sm:block">
-            <p className="font-medium text-sm">Moni Roy</p>
+            {/* <p className="font-medium text-sm">Moni Roy</p> */}
             <p className="text-xs text-gray-500">Admin</p>
           </div>
         </div>
