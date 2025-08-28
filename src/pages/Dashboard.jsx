@@ -345,7 +345,8 @@ const Dashboard = () => {
           
           <div className="flex flex-col items-center">
           <div className="focus:outline-none hover:outline-none">
-  <ResponsiveContainer width={200} height={200}>
+  <ResponsiveContainer width="100%" height={200}>  
+    {/* width=200 200 */}
     <PieChart>
       <Pie
         data={pieData}
