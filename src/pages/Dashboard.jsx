@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { AlertTriangle, Info, TrendingUp, Users, ShoppingCart, Clock, RefreshCw } from 'lucide-react';
+import ic_dash1 from '../assets/ic_dash1.png';
+import ic_dash2 from '../assets/ic_dash2.png';
+import ic_dash3 from '../assets/ic_dash3.png';
+import ic_dash4 from '../assets/ic_dash4.png';
 
 // Firebase imports
 import { initializeApp } from "firebase/app";
@@ -296,8 +300,9 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Total Revenue</span>
-            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
+            <div className=" bg-blue-100 rounded flex items-center justify-center">
+              {/* <TrendingUp className="w-4 h-4 text-blue-600" /> */}
+              <img src={ic_dash1} className='h-12 w-12' alt="" />
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900">₹{dashboardStats.totalRevenue.toLocaleString()}</div>
@@ -306,8 +311,9 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Total Products</span>
-            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-              <ShoppingCart className="w-4 h-4 text-blue-600" />
+            <div className=" bg-[#506B85]  rounded flex items-center justify-center">
+              {/* <ShoppingCart className="w-4 h-4 text-blue-600" /> */}
+                          <img src={ic_dash2} className='h-12 p-2 w-12  ' alt="" />
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900">{dashboardStats.totalOrders.toLocaleString()}</div>
@@ -316,8 +322,9 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Active Vendors</span>
-            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-              <Users className="w-4 h-4 text-blue-600" />
+            <div className=" bg-[#506B85] rounded flex items-center justify-center">
+              {/* <Users className="w-4 h-4 text-blue-600" /> */}
+                          <img src={ic_dash3} className='h-12 w-12' alt="" />
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900">{dashboardStats.activeVendors}</div>
@@ -326,8 +333,9 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">Pending Products</span>
-            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-              <Clock className="w-4 h-4 text-blue-600" />
+            <div className=" bg-blue-100 rounded flex items-center justify-center">
+              {/* <Clock className="w-4 h-4 text-blue-600" /> */}
+                          <img src={ic_dash4} className='h-12 w-12' alt="" />
             </div>
           </div>
           <div className="text-2xl font-bold text-gray-900">{dashboardStats.pendingOrders}</div>
