@@ -312,7 +312,7 @@ export default function VendorManagement() {
         <div className="bg-white rounded-lg p-4 shadow-sm ">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Active Vendors</p>
+              <p className="text-black text-sm">Active Vendors</p>
               <p className="text-2xl font-bold text-grey-500">{vendorsData.filter(v => v.status === 'Active').length}</p>
             </div>
             <div className=" h-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -337,7 +337,7 @@ export default function VendorManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Revenue</p>
-              <p className="text-2xl font-bold text-grey-500">₹{vendorsData.reduce((sum, v) => sum + parseFloat(v.revenue), 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-black">₹{vendorsData.reduce((sum, v) => sum + parseFloat(v.revenue), 0).toLocaleString()}</p>
             </div>
             {/* <DollarSign className="w-8 h-8 text-grey-500" /> */}
             <img src={vendormanage_ic4} className="h-11" alt="" />
