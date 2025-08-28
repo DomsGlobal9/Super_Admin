@@ -326,7 +326,7 @@ export default function VendorManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Products</p>
-              <p className="text-2xl font-bold  text-grey-500">{vendorsData.reduce((sum, v) => sum + v.products, 0)}</p>
+              <p className="text-2xl font-bold  text-black">{vendorsData.reduce((sum, v) => sum + v.products, 0)}</p>
             </div>
             {/* <Package className="w-8 h-8 text-grey-500" /> */}
             <div className="bg-[#506B85] h-11 w-11 rounded-lg "><img src={vendormanage_ic3} className="h-8 pl-3 pt-2 " alt="" /></div>
