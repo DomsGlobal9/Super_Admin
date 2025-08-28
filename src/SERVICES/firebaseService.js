@@ -17,7 +17,7 @@
 //   getDownloadURL, 
 //   deleteObject 
 // } from 'firebase/storage';
-import { db, storage } from '../firebaseConfig';
+import { db, storage } from '../firebaseConfig'; // Adjust the import path as needed
 
 class FirebaseService {
   // Upload multiple images to Firebase Storage
