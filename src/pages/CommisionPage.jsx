@@ -94,7 +94,7 @@ const CommissionControl = () => {
                   type="number"
                   value={defaultRate}
                   onChange={(e) => setDefaultRate(parseInt(e.target.value) || 0)}
-                  className="w-15 px-3 py-1.5 text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-[60px] px-3 py-1.5 text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <span className="text-sm text-gray-500">%</span>
               </div>

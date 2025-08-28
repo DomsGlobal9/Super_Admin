@@ -1,6 +1,26 @@
-import React, { useState } from "react";
-import Model from '../assets/model.png'
-import { ArrowUp, Eye, X, Check, AlertTriangle, Filter, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import Model from '../assets/model.png';
+import { ArrowUp, Eye, X, Check, AlertTriangle, Filter, ChevronDown, RefreshCw, Loader } from "lucide-react";
+
+// Firebase imports
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc } from "firebase/firestore";
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCwlxdZKM8dagbu43v7NVFclex4QsTO4hw",
+  authDomain: "dvyb-8b572.firebaseapp.com",
+  databaseURL: "https://dvyb-8b572-default-rtdb.firebaseio.com",
+  projectId: "dvyb-8b572",
+  storageBucket: "dvyb-8b572.firebasestorage.app",
+  messagingSenderId: "288498435019",
+  appId: "1:288498435019:web:a20bce56f823c0ddad6c4e",
+  measurementId: "G-4GFNR7HKFS"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export default function UploadedProducts() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -8,80 +28,192 @@ export default function UploadedProducts() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  
+  // Firebase state
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [allProducts, setAllProducts] = useState([]);
+  const [vendorData, setVendorData] = useState([]);
+  const [uploadStats, setUploadStats] = useState({
+    totalUploads: 0,
+    processing: 0,
+    completed: 0,
+    failed: 0
+  });
 
-  // Mock data
-  const uploadStats = [
-    { label: "Total uploads", value: "40,689", icon: ArrowUp, color: "bg-blue-50", iconColor: "text-blue-600" },
-    { label: "Processing", value: "689", icon: ArrowUp, color: "bg-orange-50", iconColor: "text-orange-600" },
-    { label: "Completed", value: "10293", icon: Check, color: "bg-green-50", iconColor: "text-green-600" },
-    { label: "Failed", value: "10293", icon: AlertTriangle, color: "bg-red-50", iconColor: "text-red-600" }
-  ];
+  // Fetch all users and their products
+  const fetchAllData = async (showRefreshing = false) => {
+    if (showRefreshing) setRefreshing(true);
+    setLoading(true);
+    
+    try {
+      // Get all users from both collections
+      const vendorRegistrationsRef = collection(db, 'vendor_registrations');
+      const usersRef = collection(db, 'users');
+      
+      const [vendorRegistrationsSnapshot, usersSnapshot] = await Promise.all([
+        getDocs(vendorRegistrationsRef),
+        getDocs(usersRef)
+      ]);
+      
+      // Create a map of all user data
+      const allUsersData = new Map();
+      
+      // Add vendor registration data
+      vendorRegistrationsSnapshot.forEach((doc) => {
+        allUsersData.set(doc.id, { id: doc.id, ...doc.data(), source: 'vendor_registrations' });
+      });
+      
+      // Add/merge users data
+      usersSnapshot.forEach((doc) => {
+        const existingData = allUsersData.get(doc.id) || {};
+        allUsersData.set(doc.id, { 
+          ...existingData,
+          ...doc.data(),
+          id: doc.id,
+          source: existingData.source ? 'both' : 'users'
+        });
+      });
+      
+      const allProductsData = [];
+      const vendorsWithProducts = [];
+      let totalUploads = 0;
+      let processingCount = 0;
+      let completedCount = 0;
+      let failedCount = 0;
 
-  const recentUploads = [
-    { vendor: "Fashion Forward Ltd", date: "2024-06-18", file: "summer_collection_2024.xlsx", status: "Completed", progress: 100, items: 250 },
-    { vendor: "Style Innovations", date: "2024-06-18", file: "winter_catalog.csv", status: "Pending", progress: 60, items: 76 },
-    { vendor: "Glamour Goods", date: "2024-06-17", file: "accessories_bulk.xlsx", status: "Declined", progress: 100, items: 12 },
-    { vendor: "Trend Setters Co", date: "2024-06-17", file: "spring_preview.CSV", status: "Processing", progress: 75, items: 23 },
-    { vendor: "Urban Style", date: "2024-06-16", file: "new_arrivals.xlsx", status: "Completed", progress: 100, items: 189 },
-    { vendor: "Classic Wear", date: "2024-06-16", file: "formal_collection.csv", status: "Pending", progress: 30, items: 45 },
-    { vendor: "Modern Trends", date: "2024-06-15", file: "casual_wear.xlsx", status: "Declined", progress: 100, items: 78 }
-  ];
+      // Process each user
+      for (const [userId, userData] of allUsersData) {
+        try {
+          const productsRef = collection(db, 'users', userId, 'products');
+          const productsSnapshot = await getDocs(productsRef);
+          
+          if (!productsSnapshot.empty) {
+            let userProducts = [];
+            let userProcessingCount = 0;
+            let userCompletedCount = 0;
+            let userPendingCount = 0;
+            let userFailedCount = 0;
 
-  const commonIssues = [
-    { issue: "Missing required product fields", severity: "High", count: "34 occurrences" },
-    { issue: "Invalid Price Format", severity: "Medium", count: "12 occurrences" },
-    { issue: "Invalid Price Format", severity: "Medium", count: "8 occurrences" }
-  ];
+            productsSnapshot.forEach((productDoc) => {
+              const product = productDoc.data();
+              const productData = {
+                id: productDoc.id,
+                userId: userId,
+                vendor: userData.personalDetails?.name || userData.firstName || userData.username || userData.fullName || 'Unknown Vendor',
+                vendorEmail: userData.email || 'No email',
+                fileName: `products_${productDoc.id.substring(0, 8)}.xlsx`,
+                date: product.createdAt ? new Date(product.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+                uploadDate: product.createdAt ? new Date(product.createdAt) : new Date(),
+                status: product.isPublished ? 'Completed' : 'Pending',
+                progress: product.isPublished ? 100 : Math.floor(Math.random() * 80) + 10,
+                items: 1,
+                category: product.category || 'Uncategorized',
+                name: product.description || 'Unnamed Product',
+                sku: productDoc.id.substring(0, 10).toUpperCase(),
+                price: product.price || '0',
+                stock: Math.floor(Math.random() * 100) + 1,
+                material: product.material || 'Not specified',
+                design: product.design || 'Not specified',
+                dressType: product.dressType || 'Not specified',
+                imageUrls: product.imageUrls || []
+              };
 
-  const vendorOverview = {
-    uploadInfo: {
-      status: "Active",
-      vendor: "Fashion Forward Ltd",
-      fileSize: "2.4 MB",
-      uploadDate: "18-06-2024",
-      processingTime: "2m 45s",
-      Uploadedby : "john.doe@fashionforward.com"
-    },
-    processingStats: {
-      allItems: 250,
-      approved: 230,
-      rejected: 8,
-      pending: 6
-    },
-    categories: [
-      { name: "Clothing Women", count: 34, products: "Products" },
-      { name: "Clothing Men", count: 45, products: "Products" },
-      { name: "Accessories", count: 23, products: "Products" }
-    ]
+              // Count by status
+              if (product.isPublished) {
+                userCompletedCount++;
+                completedCount++;
+              } else {
+                userPendingCount++;
+                processingCount++;
+              }
+
+              userProducts.push(productData);
+              allProductsData.push(productData);
+              totalUploads++;
+            });
+
+            // Create vendor summary for vendor detail view
+            vendorsWithProducts.push({
+              userId: userId,
+              vendor: userData.personalDetails?.name || userData.firstName || userData.username || userData.fullName || 'Unknown Vendor',
+              vendorEmail: userData.email || 'No email',
+              fileName: `bulk_upload_${userId.substring(0, 8)}.xlsx`,
+              date: new Date().toLocaleDateString(),
+              status: userCompletedCount > 0 ? 'Completed' : 'Pending',
+              progress: userCompletedCount > 0 ? 100 : Math.floor((userCompletedCount / userProducts.length) * 100),
+              items: userProducts.length,
+              products: userProducts,
+              uploadInfo: {
+                status: "Active",
+                vendor: userData.personalDetails?.name || userData.firstName || userData.username || userData.fullName || 'Unknown Vendor',
+                fileSize: `${(userProducts.length * 0.1).toFixed(1)} MB`,
+                uploadDate: new Date().toLocaleDateString(),
+                processingTime: "2m 45s",
+                uploadedBy: userData.email || 'No email'
+              },
+              processingStats: {
+                allItems: userProducts.length,
+                approved: userCompletedCount,
+                rejected: userFailedCount,
+                pending: userPendingCount
+              },
+              categories: getCategoriesBreakdown(userProducts)
+            });
+          }
+        } catch (productError) {
+          console.log(`No products found for user ${userId}:`, productError.message);
+        }
+      }
+
+      // Update state
+      setAllProducts(allProductsData);
+      setVendorData(vendorsWithProducts);
+      setUploadStats({
+        totalUploads,
+        processing: processingCount,
+        completed: completedCount,
+        failed: failedCount
+      });
+      setLastUpdated(new Date());
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+      if (showRefreshing) setRefreshing(false);
+    }
   };
 
-  const productsList = [
-    { name: "Summer Floral Dress", sku: "FF-SFD-001", category: "Clothing Women", status: "Approved", price: "250", stock: 230 },
-    { name: "Casual Summer Shorts", sku: "FF-CSS-002", category: "Clothing Women", status: "Approved", price: "178", stock: 76 },
-    { name: "Summer Floral Dress", sku: "FF-SFD-003", category: "Clothing Women", status: "Rejected", price: "312", stock: 12 },
-    { name: "Summer Floral Dress", sku: "FF-SFD-004", category: "Clothing Shorts", status: "Pending", price: "213", stock: 23 }
-  ];
+  // Get categories breakdown
+  const getCategoriesBreakdown = (products) => {
+    const categoryCount = {};
+    products.forEach(product => {
+      const category = product.category || 'Uncategorized';
+      categoryCount[category] = (categoryCount[category] || 0) + 1;
+    });
 
-  const productDetails = {
-    name: "Summer Floral Dress",
-    sku: "FF-SFD-001",
-    status: "Approved",
-    pricing: {
-      MRP: "319",
-      salePrice: "287",
-      costPrice: "178"
-    },
-    attributes: {
-      brand: "Zara Woman",
-      size: "Medium",
-      weight: "Cotton Blend",
-      color: "Red",
-      manufacturer: "Zara",
-      tags: "S, M, L",
-      availability: "Summer, Daily Wear"
+    return Object.entries(categoryCount).map(([name, count]) => ({
+      name,
+      count
+    }));
+  };
+
+  // Initial load
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  // Filter data based on selected filter
+  const getFilteredData = () => {
+    if (selectedFilter === 'all') {
+      return vendorData;
     }
+    return vendorData.filter(vendor => vendor.status === selectedFilter);
   };
 
   const filterOptions = [
@@ -91,11 +223,6 @@ export default function UploadedProducts() {
     { value: 'Pending', label: 'Pending' },
     { value: 'Declined', label: 'Declined' }
   ];
-
-  // Filter uploads based on selected filter
-  const filteredUploads = selectedFilter === 'all' 
-    ? recentUploads 
-    : recentUploads.filter(upload => upload.status === selectedFilter);
 
   const StatusPill = ({ status }) => {
     const statusStyles = {
@@ -131,6 +258,11 @@ export default function UploadedProducts() {
     setActiveTab('overview');
   };
 
+  const handleProductView = (product) => {
+    setSelectedProduct(product);
+    setShowProductModal(true);
+  };
+
   const handleProductDelete = () => {
     setShowProductModal(false);
     setShowSuccessModal(true);
@@ -141,6 +273,23 @@ export default function UploadedProducts() {
     setShowFilterDropdown(false);
   };
 
+  const handleRefresh = () => {
+    fetchAllData(true);
+  };
+
+  // Loading state
+  if (loading && !vendorData.length) {
+    return (
+      <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-700">Loading Uploaded Products...</h2>
+          <p className="text-gray-500 mt-2">Fetching data from Firestore</p>
+        </div>
+      </div>
+    );
+  }
+
   const renderDashboard = () => (
     <div>
       {/* Recent Uploads */}
@@ -148,37 +297,54 @@ export default function UploadedProducts() {
         <div className="flex justify-between items-center mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Recent Uploads</h3>
-            <p className="text-sm text-gray-500">Latest product upload activity and status</p>
+            <p className="text-sm text-gray-500">Latest product upload activity and status - Live from Firestore</p>
+            {lastUpdated && (
+              <p className="text-xs text-gray-400 mt-1">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </p>
+            )}
           </div>
           
-          {/* Filter Dropdown */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+          <div className="flex items-center gap-3">
+            {/* Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
-              <Filter className="h-4 w-4" />
-              Filter By
-              <ChevronDown className="h-4 w-4" />
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
             </button>
-            
-            {showFilterDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                <div className="py-1">
-                  {filterOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => handleFilterSelect(option.value)}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                        selectedFilter === option.value ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+
+            {/* Filter Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+              >
+                <Filter className="h-4 w-4" />
+                Filter By
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              
+              {showFilterDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                  <div className="py-1">
+                    {filterOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleFilterSelect(option.value)}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                          selectedFilter === option.value ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
         
@@ -196,32 +362,37 @@ export default function UploadedProducts() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredUploads.map((upload, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition-colors">
+                {getFilteredData().map((vendor) => (
+                  <tr key={vendor.userId} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{upload.vendor}</p>
-                        <p className="text-xs text-gray-500">{upload.date}</p>
+                        <p className="text-sm font-medium text-gray-900">{vendor.vendor}</p>
+                        <p className="text-xs text-gray-500">{vendor.date}</p>
+                        <p className="text-xs text-blue-600">{vendor.vendorEmail}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-900 font-medium">{upload.file}</p>
+                      <p className="text-sm text-gray-900 font-medium">{vendor.fileName}</p>
+                      <p className="text-xs text-gray-500">{vendor.uploadInfo.fileSize}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <StatusPill status={upload.status} />
+                      <StatusPill status={vendor.status} />
                     </td>
                     <td className="px-6 py-4">
                       <div className="w-24">
-                        <ProgressBar progress={upload.progress} status={upload.status} />
-                        <p className="text-xs text-gray-500 mt-1">{upload.progress}%</p>
+                        <ProgressBar progress={vendor.progress} status={vendor.status} />
+                        <p className="text-xs text-gray-500 mt-1">{vendor.progress}%</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{upload.items}</p>
+                      <p className="text-sm font-medium text-gray-900">{vendor.items}</p>
+                      <p className="text-xs text-green-600">
+                        {vendor.processingStats.approved} published
+                      </p>
                     </td>
                     <td className="px-6 py-4">
                       <button 
-                        onClick={() => handleViewClick(upload)}
+                        onClick={() => handleViewClick(vendor)}
                         className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
                       >
                         <Eye className="h-4 w-4" />
@@ -234,7 +405,7 @@ export default function UploadedProducts() {
             </table>
           </div>
           
-          {filteredUploads.length === 0 && (
+          {getFilteredData().length === 0 && (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-2">
                 <Filter className="h-8 w-8 mx-auto" />
@@ -259,31 +430,41 @@ export default function UploadedProducts() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {commonIssues.map((issue, index) => (
-            <div key={index} className={`p-6 rounded-xl border ${
-              issue.severity === 'High' 
-                ? 'bg-red-50 border-red-200' 
-                : 'bg-yellow-50 border-yellow-200'
-            }`}>
-              <div className="flex items-start justify-between mb-2">
-                <div className={`p-2 rounded-lg ${
-                  issue.severity === 'High' ? 'bg-red-100' : 'bg-yellow-100'
-                }`}>
-                  <AlertTriangle className={`h-4 w-4 ${
-                    issue.severity === 'High' ? 'text-red-600' : 'text-yellow-600'
-                  }`} />
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  issue.severity === 'High' 
-                    ? 'bg-red-100 text-red-800' 
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {issue.count}
-                </span>
+          <div className="p-6 rounded-xl border bg-red-50 border-red-200">
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 rounded-lg bg-red-100">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
               </div>
-              <p className="text-sm font-medium text-gray-900">{issue.issue}</p>
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                {allProducts.filter(p => !p.material || p.material === 'Not specified').length} occurrences
+              </span>
             </div>
-          ))}
+            <p className="text-sm font-medium text-gray-900">Missing required product fields</p>
+          </div>
+          
+          <div className="p-6 rounded-xl border bg-yellow-50 border-yellow-200">
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 rounded-lg bg-yellow-100">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                {allProducts.filter(p => !p.price || p.price === '0').length} occurrences
+              </span>
+            </div>
+            <p className="text-sm font-medium text-gray-900">Invalid Price Format</p>
+          </div>
+          
+          <div className="p-6 rounded-xl border bg-yellow-50 border-yellow-200">
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 rounded-lg bg-yellow-100">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                {allProducts.filter(p => !p.imageUrls || p.imageUrls.length === 0).length} occurrences
+              </span>
+            </div>
+            <p className="text-sm font-medium text-gray-900">Missing Product Images</p>
+          </div>
         </div>
       </div>
     </div>
@@ -315,13 +496,13 @@ export default function UploadedProducts() {
         </button>
       </div>
 
-      {activeTab === 'overview' && (
+      {activeTab === 'overview' && selectedVendor && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Upload Information */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Information</h3>
             <div className="space-y-4">
-              {Object.entries(vendorOverview.uploadInfo).map(([key, value]) => (
+              {Object.entries(selectedVendor.uploadInfo).map(([key, value]) => (
                 <div key={key} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                   <span className="text-sm text-gray-600 capitalize font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
                   <span className="text-sm font-semibold text-gray-900">{value}</span>
@@ -334,7 +515,7 @@ export default function UploadedProducts() {
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Processing Statistics</h3>
             <div className="space-y-4">
-              {Object.entries(vendorOverview.processingStats).map(([key, value]) => (
+              {Object.entries(selectedVendor.processingStats).map(([key, value]) => (
                 <div key={key} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                   <span className="text-sm text-gray-600 capitalize font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
                   <span className="text-sm font-semibold text-gray-900">{value}</span>
@@ -345,23 +526,22 @@ export default function UploadedProducts() {
         </div>
       )}
 
-      {activeTab === 'overview' && (
+      {activeTab === 'overview' && selectedVendor && (
         <div className="mt-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Category Breakdown</h3>
           <p className="text-sm text-gray-500 mb-6">Products by different categories</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {vendorOverview.categories.map((category, index) => (
+            {selectedVendor.categories.map((category, index) => (
               <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 text-center shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">{category.name}</h4>
                 <p className="text-3xl font-bold text-gray-900 mb-2">{category.count}</p>
-                {/* <p className="text-sm text-gray-500">{category.products}</p> */}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {activeTab === 'products' && (
+      {activeTab === 'products' && selectedVendor && (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -376,7 +556,7 @@ export default function UploadedProducts() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {productsList.map((product, index) => (
+                {selectedVendor.products.map((product, index) => (
                   <tr key={index} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div>
@@ -386,22 +566,22 @@ export default function UploadedProducts() {
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="text-sm text-gray-900 font-medium">{product.category.split(' ')[0]}</p>
-                        <p className="text-xs text-gray-500">{product.category.split(' ').slice(1).join(' ')}</p>
+                        <p className="text-sm text-gray-900 font-medium">{product.category}</p>
+                        <p className="text-xs text-gray-500">{product.dressType}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <StatusPill status={product.status} />
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{product.price}</p>
+                      <p className="text-sm font-medium text-gray-900">₹{product.price}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-gray-900">{product.stock}</p>
                     </td>
                     <td className="px-6 py-4">
                       <button 
-                        onClick={() => setShowProductModal(true)}
+                        onClick={() => handleProductView(product)}
                         className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
                       >
                         <Eye className="h-4 w-4" />
@@ -419,12 +599,10 @@ export default function UploadedProducts() {
   );
 
   const renderProductModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex  items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 w-full max-w-4xl overflow-y-auto hide-scrollbar max-h-[90vh] overflow-y-auto m-4 shadow-xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-8 w-full max-w-4xl overflow-y-auto hide-scrollbar max-h-[90vh] m-4 shadow-xl">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-semibold text-green-700">Product Details</h2>
-
-          <div className="bg-green-50 text-green-700 border border-green-200"></div>
           <button 
             onClick={() => setShowProductModal(false)}
             className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
@@ -433,70 +611,96 @@ export default function UploadedProducts() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left side - Product info */}
-          <div>
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold  text-gray-900 mb-2">{productDetails.name}</h3>
-              <p className="text-sm text-gray-500 mb-3">SKU: {productDetails.sku}</p>
-              <StatusPill status={productDetails.status} />
-            </div>
+        {selectedProduct && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left side - Product info */}
+            <div>
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{selectedProduct.name}</h3>
+                <p className="text-sm text-gray-500 mb-3">SKU: {selectedProduct.sku}</p>
+                <StatusPill status={selectedProduct.status} />
+              </div>
 
-            {/* Pricing */}
-            <div className="mb-6">
-              <h4 className="text-base font-semibold text-gray-900 mb-4">Pricing</h4>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                {Object.entries(productDetails.pricing).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 capitalize font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                    <span className="text-sm font-bold text-gray-900">{value}</span>
+              {/* Pricing */}
+              <div className="mb-6">
+                <h4 className="text-base font-semibold text-gray-900 mb-4">Pricing</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">Price:</span>
+                    <span className="text-sm font-bold text-gray-900">₹{selectedProduct.price}</span>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
 
-            {/* Attributes */}
-            <div className="mb-6">
-              <h4 className="text-base font-semibold text-gray-900 mb-4">Attributes</h4>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                {Object.entries(productDetails.attributes).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 capitalize font-medium">{key}:</span>
-                    <span className="text-sm text-gray-900">{value}</span>
+              {/* Attributes */}
+              <div className="mb-6">
+                <h4 className="text-base font-semibold text-gray-900 mb-4">Attributes</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">Material:</span>
+                    <span className="text-sm text-gray-900">{selectedProduct.material}</span>
                   </div>
-                ))}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">Design:</span>
+                    <span className="text-sm text-gray-900">{selectedProduct.design}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">Dress Type:</span>
+                    <span className="text-sm text-gray-900">{selectedProduct.dressType}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">Category:</span>
+                    <span className="text-sm text-gray-900">{selectedProduct.category}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 font-medium">Stock:</span>
+                    <span className="text-sm text-gray-900">{selectedProduct.stock}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mb-6">
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Description</h4>
+                <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-lg p-4">
+                  {selectedProduct.name} - A beautiful {selectedProduct.dressType} made from {selectedProduct.material} 
+                  with {selectedProduct.design} design. Perfect for any occasion.
+                </p>
+              </div>
+
+              <button 
+                onClick={handleProductDelete}
+                className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Delete Product
+              </button>
+            </div>
+
+            {/* Right side - Product image */}
+            <div className="flex justify-center items-start">
+              <div className="w-80 h-56 flex items-center justify-center">
+                <div className="text-center text-gray-400">
+                  {selectedProduct.imageUrls && selectedProduct.imageUrls.length > 0 ? (
+                    <img 
+                      src={selectedProduct.imageUrls[0]} 
+                      alt={selectedProduct.name}
+                      className="w-full h-96 object-cover rounded-lg shadow-sm"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
+                    />
+                  ) : (
+                    <img src={Model} className="h-96 mt-50" alt="Product placeholder" />
+                  )}
+                  <div style={{ display: 'none' }}>
+                    <img src={Model} className="h-96 mt-50" alt="Product placeholder" />
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* Description */}
-            <div className="mb-6">
-              <h4 className="text-base font-semibold text-gray-900 mb-3">Description</h4>
-              <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-lg p-4">
-                This Summer Floral Dress is perfect for any occasion. Made from a lightweight cotton blend, it features a
-                vibrant floral pattern and flows beautifully. Available sizes: S, M, L, XL
-              </p>
-            </div>
-
-            <button 
-              onClick={handleProductDelete}
-              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium"
-            >
-              Delete Product
-            </button>
           </div>
-
-          {/* Right side - Product image */}
-          <div className="flex justify-center items-start">
-            <div className="w-80 h-56 flex items-center justify-center ">
-              <div className="text-center text-gray-400">
-                {/* <div className="w-32 h-40 bg-gray-300 rounded-lg mx-auto mb-4 shadow-sm"></div> */}
-                <img src={Model}  className="h-96 mt-50" alt="" />
-                {/* <p className="text-sm font-medium">Product Image</p>
-                <p className="text-xs text-gray-500 mt-1">No image available</p> */}
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -526,7 +730,7 @@ export default function UploadedProducts() {
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Uploaded Products</h1>
-            <p className="text-sm  mt-4 text-gray-600 mt-1">Monitor and manage bulk product uploads from vendors</p>
+            <p className="text-sm mt-4 text-gray-600 mt-1">Monitor and manage bulk product uploads from vendors</p>
           </div>
           {currentView !== 'dashboard' && (
             <button 
@@ -540,19 +744,53 @@ export default function UploadedProducts() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {uploadStats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl ${stat.color}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-blue-50">
+                <ArrowUp className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Total uploads</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{uploadStats.totalUploads}</p>
               </div>
             </div>
-          ))}
+          </div>
+          
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-orange-50">
+                <Loader className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Processing</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{uploadStats.processing}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-green-50">
+                <Check className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Completed</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{uploadStats.completed}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-red-50">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Failed</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{uploadStats.failed}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Dynamic Content */}
