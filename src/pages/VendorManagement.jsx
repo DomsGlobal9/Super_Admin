@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { X, User, Package, DollarSign, AlertTriangle, Clock, Trash2, RefreshCw, Eye } from "lucide-react";
 
+import vendormanage_ic1 from '../assets/vendormanage_ic1.png';
+import vendormanage_ic2 from '../assets/vendormanage_ic2.png';
+import vendormanage_ic3 from '../assets/vendormanage_ic3.png';
+import vendormanage_ic4 from '../assets/vendormanage_ic4.png';
 // Firebase imports
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
@@ -271,12 +275,12 @@ export default function VendorManagement() {
             placeholder="Search vendors..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-white text-black px-4 py-2 w-full sm:w-64 rounded-lg border"
+            className="bg-white text-black px-4 py-2 w-full sm:w-64 rounded-lg "
           />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="bg-white text-black rounded-lg px-4 py-2 border w-full sm:w-auto"
+            className="bg-white text-black rounded-lg px-4 py-2  w-full sm:w-auto"
           >
             <option value="All">Filter by</option>
             <option value="Active">Active</option>
@@ -296,48 +300,53 @@ export default function VendorManagement() {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
+        <div className="bg-white rounded-lg p-4 shadow-sm ">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Vendors</p>
               <p className="text-2xl font-bold text-gray-900">{vendorsData.length}</p>
             </div>
-            <User className="w-8 h-8 text-blue-500" />
+            <img src={vendormanage_ic1} className="h-11" alt="" />
           </div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
+        <div className="bg-white rounded-lg p-4 shadow-sm ">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Active Vendors</p>
-              <p className="text-2xl font-bold text-green-600">{vendorsData.filter(v => v.status === 'Active').length}</p>
+              <p className="text-2xl font-bold text-grey-500">{vendorsData.filter(v => v.status === 'Active').length}</p>
             </div>
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-green-600 rounded"></div>
+            <div className=" h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              {/* <div className="w-4 h-4 bg-green-600 rounded"></div>
+               */}
+            <img src={vendormanage_ic2} className="h-11" alt="" />
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
+        <div className="bg-white rounded-lg p-4 shadow-sm ">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Products</p>
-              <p className="text-2xl font-bold text-purple-600">{vendorsData.reduce((sum, v) => sum + v.products, 0)}</p>
+              <p className="text-2xl font-bold  text-grey-500">{vendorsData.reduce((sum, v) => sum + v.products, 0)}</p>
             </div>
-            <Package className="w-8 h-8 text-purple-500" />
+            {/* <Package className="w-8 h-8 text-grey-500" /> */}
+            <div className="bg-[#506B85] h-11 w-11 rounded-lg "><img src={vendormanage_ic3} className="h-8 pl-3 pt-2 " alt="" /></div>
+           
           </div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
+        <div className="bg-white rounded-lg p-4 shadow-sm ">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Revenue</p>
-              <p className="text-2xl font-bold text-orange-600">₹{vendorsData.reduce((sum, v) => sum + parseFloat(v.revenue), 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-grey-500">₹{vendorsData.reduce((sum, v) => sum + parseFloat(v.revenue), 0).toLocaleString()}</p>
             </div>
-            <DollarSign className="w-8 h-8 text-orange-500" />
+            {/* <DollarSign className="w-8 h-8 text-grey-500" /> */}
+            <img src={vendormanage_ic4} className="h-11" alt="" />
           </div>
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="p-3 sm:p-6 bg-white min-h-screen min-w-full rounded-lg shadow-sm border">
+      <div className="p-3 sm:p-6 bg-white min-h-screen min-w-full rounded-lg shadow-sm ">
         {/* Desktop Table View */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-sm">

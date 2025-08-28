@@ -12,6 +12,7 @@ import Notifications from "./pages/Notifications";
 import InventoryDashboard from "./pages/InventoryHealth";
 // import VendorManagement from "./pages/productInventory";
 import ProductInventory from "./pages/productInventory";
+import CommissionControl from "./pages/CommisionPage";
 
 const Placeholder = ({ title }) => <h2 className="text-xl font-bold">{title}</h2>;
 
@@ -28,7 +29,7 @@ function App() {
     <Route path="finance" element={< FinancePage />} />
     <Route path="compliance" element={< Compliance />} />
     <Route path="/product-inventory" element={<ProductInventory />} />
-
+    <Route path="/commision" element={<CommissionControl />} />
     <Route path = "customer-support" element={< CustomerSupport />} />
     <Route path = "settings" element={< Settings />} />
     <Route path="notifications" element={< Notifications />} />

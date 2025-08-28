@@ -44,6 +44,12 @@ const Sidebar = ({ open, setOpen }) => {
             <Link to="/customer-support" className="flex items-center text-gray-600  gap-3 p-2 rounded-lg hover:bg-blue-50">
               <Clipboard size={20} /> Customer Support
             </Link>
+              <Link to="/inventory-health" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
+    <Clipboard size={20} /> Inventory Health
+  </Link>
+    <Link to="/commision" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
+    <Clipboard size={20} /> Commision
+  </Link>
             <Link to="/settings" className="flex items-center gap-3 text-gray-600  p-2 rounded-lg hover:bg-blue-50">
               <Settings size={20} /> Settings
             </Link>
@@ -100,6 +106,9 @@ const Sidebar = ({ open, setOpen }) => {
   </Link>
   <Link to="/inventory-health" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
     <Clipboard size={20} /> Inventory Health
+  </Link>
+      <Link to="/commision" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
+    <Clipboard size={20} /> Commision
   </Link>
   <Link to="/settings" onClick={() => setOpen(false)} className="flex items-center gap-3 text-gray-600 p-2 rounded-lg hover:bg-blue-50">
     <Settings size={20} /> Settings

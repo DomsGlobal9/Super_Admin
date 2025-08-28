@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { X, RefreshCw } from "lucide-react";
-
+import Ic_finance1 from "../assets/Ic_finance1.png";
+import Ic_finance2 from "../assets/Ic_finance2.png";
+import Ic_finance3 from "../assets/Ic_finance3.png";
+import Ic_finance4 from "../assets/Ic_finance4.png";
 // Firebase imports
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc } from "firebase/firestore";
@@ -256,7 +259,8 @@ const FinanceDashboard = () => {
               <p className="text-2xl font-bold text-gray-900 mt-2">₹{dashboardStats.totalRevenue.toLocaleString()}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <div className="w-6 h-6 bg-blue-600 rounded"></div>
+              <img src={Ic_finance1} alt="" />
+              {/* <div className="w-6 h-6 bg-blue-600 rounded"></div> */}
             </div>
           </div>
         </div>
@@ -268,7 +272,8 @@ const FinanceDashboard = () => {
               <p className="text-2xl font-bold text-gray-900 mt-2">₹{dashboardStats.b2bRevenue.toLocaleString()}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <div className="w-6 h-6 bg-green-600 rounded"></div>
+              {/* <div className="w-6 h-6 bg-green-600 rounded"></div> */}
+                 <img src={Ic_finance2} alt="" />
             </div>
           </div>
         </div>
@@ -280,7 +285,8 @@ const FinanceDashboard = () => {
               <p className="text-2xl font-bold text-gray-900 mt-2">₹{dashboardStats.b2cRevenue.toLocaleString()}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <div className="w-6 h-6 bg-purple-600 rounded"></div>
+              {/* <div className="w-6 h-6 bg-purple-600 rounded"></div> */}
+                 <img src={Ic_finance3} alt="" />
             </div>
           </div>
         </div>
@@ -292,7 +298,8 @@ const FinanceDashboard = () => {
               <p className="text-2xl font-bold text-gray-900 mt-2">{dashboardStats.pendingPayout}</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <div className="w-6 h-6 bg-orange-600 rounded"></div>
+              {/* <div className="w-6 h-6 bg-orange-600 rounded"></div> */}
+                 <img src={Ic_finance4} alt="" />
             </div>
           </div>
         </div>
