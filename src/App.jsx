@@ -23,17 +23,17 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
 
-            <Route path="logistics" element={< Logistics/>} />
-  <Route path="vendor-management" element={< VendorManagement />} />
-    <Route path="uploaded-products" element={< UploadedProducts />} />
-    <Route path="finance" element={< FinancePage />} />
-    <Route path="compliance" element={< Compliance />} />
+            <Route path="/logistics" element={< Logistics/>} />
+  <Route path="/vendor-management" element={< VendorManagement />} />
+    <Route path="/uploaded-products" element={< UploadedProducts />} />
+    <Route path="/finance" element={< FinancePage />} />
+    <Route path="/compliance" element={< Compliance />} />
     <Route path="/product-inventory" element={<ProductInventory />} />
     <Route path="/commision" element={<CommissionControl />} />
-    <Route path = "customer-support" element={< CustomerSupport />} />
-    <Route path = "settings" element={< Settings />} />
-    <Route path="notifications" element={< Notifications />} />
-     <Route path="inventory-health" element={< InventoryDashboard />} />
+    <Route path = "/customer-support" element={< CustomerSupport />} />
+    <Route path = "/settings" element={< Settings />} />
+    <Route path="/notifications" element={< Notifications />} />
+     <Route path="/inventory-health" element={< InventoryDashboard />} />
           {/* <Route path="vendor-management" element={<Placeholder title="Vendor Management" />} />
           <Route path="uploaded-products" element={<Placeholder title="Uploaded Products" />} />
           <Route path="logistics" element={<Placeholder title="Logistics" />} />
