@@ -6,13 +6,25 @@ import {
   Headphones, Clipboard, Settings, LogOut
 } from "lucide-react";
 
+import ic_CustomerSupport from '../assets/ic_CustomerSupport.png';
+import ic_dash from '../assets/ic_dash.png';
+import ic_VendorProfile from '../assets/ic_VendorProfile.png';
+import ic_UploadProduct from '../assets/ic_UploadProduct.png';
+import ic_logistics from '../assets/ic_logistics.png';
+import ic_compilance from '../assets/ic_compilance.png';
+import ic_notification from '../assets/ic_notification.png';
+import ic_finance from '../assets/ic_finance.png';
+import ic_Inventory from '../assets/ic_Inventory.png';
+import ic_settings from '../assets/ic_settings.png';
+
+
 const Sidebar = ({ open, setOpen }) => {
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 bg-white shadow-md flex-col justify-between">
         <div>
-  <div className="flex items-center justify-center h-16 bg-[#D1DCEB] text-white font-bold text-xl">
+  <div className="flex items-center justify-center h-16 bg-[#388DCD] text-white font-bold text-xl">
               <img src={dvyb} className="object-contain  " alt="" />
             </div>
           <nav className="mt-4 px-4 space-y-2">
@@ -21,37 +33,50 @@ const Sidebar = ({ open, setOpen }) => {
   onClick={() => setOpen(false)}
   className="flex items-center gap-3 p-2 rounded-lg text-gray-600 no-underline hover:bg-blue-50 "
 >
-  <Home size={20} />  Dashboard
+  {/* <Home size={20} />  */}
+                <img src={ic_dash} className="h-5" alt="" />
+   Dashboard
 </a>
             <Link to="/vendor-management" className="flex items-center gap-3 p-2  text-gray-600   rounded-lg hover:bg-blue-50">
-              <Package size={20} /> Vendor Management
+              {/* <Package size={20} /> */}
+              <img src={ic_VendorProfile} className="h-5" alt="" />
+               Vendor Management
             </Link>
             <Link to="/uploaded-products" className="flex items-center gap-3 text-gray-600  p-2 rounded-lg hover:bg-blue-50">
-              <Truck size={20} /> Uploaded Products
+              <img src={ic_UploadProduct} className="h-5" alt="" />
+               Uploaded Products
             </Link>
             <Link to="/logistics" className="flex items-center gap-3 p-2 text-gray-600  rounded-lg hover:bg-blue-50">
-              <FileText size={20} /> Logistics
+              <img src={ic_logistics} className="h-5" alt="" />
+              Logistics
             </Link>
             <Link to="/compliance" className="flex items-center gap-3 p-2 text-gray-600  rounded-lg hover:bg-blue-50">
-              <Bell size={20} /> Compliance
+              <img src={ic_compilance} className="h-5" alt="" />
+              Compliance
             </Link>
             <Link to="/notifications" className="flex items-center gap-3 p-2 text-gray-600  rounded-lg hover:bg-blue-50">
-              <DollarSign size={20} /> Notifications
+              <img src={ic_notification} className="h-5" alt="" />
+              Notifications
             </Link>
             <Link to="/finance" className="flex items-center gap-3 text-gray-600  p-2 rounded-lg hover:bg-blue-50">
-              <Headphones size={20} /> Finance
+              <img src={ic_finance} className="h-5" alt="" />
+              Finance
             </Link>
             <Link to="/customer-support" className="flex items-center text-gray-600  gap-3 p-2 rounded-lg hover:bg-blue-50">
-              <Clipboard size={20} /> Customer Support
+              <img src={ic_CustomerSupport} className="h-5" alt="" />
+              Customer Support
             </Link>
-              <Link to="/inventory-health" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
-    <Clipboard size={20} /> Inventory Health
-  </Link>
-    <Link to="/commision" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
-    <Clipboard size={20} /> Commision
-  </Link>
+            <Link to="/inventory-health" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
+              <img src={ic_Inventory} className="h-5" alt="" />
+              Inventory Health
+            </Link>
+            <Link to="/commision" onClick={() => setOpen(false)} className="flex items-center text-gray-600 gap-3 p-2 rounded-lg hover:bg-blue-50">
+              <img src={ic_dash} className="h-5" alt="" />
+              Commission
+            </Link>
             <Link to="/settings" className="flex items-center gap-3 text-gray-600  p-2 rounded-lg hover:bg-blue-50">
-              <Settings size={20} /> Settings
+              <img src={ic_settings} className="h-5" alt="" />
+              Settings
             </Link>
           </nav>
         </div>

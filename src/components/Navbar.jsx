@@ -3,7 +3,7 @@ import dvyb from "../assets/dvybeLogo.png";
 
 const Navbar = ({ toggleSidebar }) => {
   return (
-    <header className="bg-[#D1DCEB] border-b shadow-sm  flex items-center justify-between px-6 py-3">
+    <header className="bg-white   shadow-sm  flex items-center justify-between px-6 py-3">
       <div className="flex items-center gap-3">
         {/* Hamburger for mobile */}
         <button
@@ -21,12 +21,12 @@ const Navbar = ({ toggleSidebar }) => {
       <div className="flex items-center gap-6">
 
           {/* Search bar */}
-        <div className="hidden sm:flex items-center border border-white   w-72 rounded-lg px-3 py-2  ">
+        <div className="hidden sm:flex items-center border border-black   w-72 rounded-lg px-3 py-2  ">
           {/* <span className="text-gray-400 mr-2">🔍</span> */}
           <input
             type="text"
             placeholder="Search "
-            className="flex-1 outline-none placeholder-white px-6 text-sm text-white"
+            className="flex-1 outline-none placeholder-black px-6 text-sm text-black"
           />
         </div>
         <div className="relative cursor-pointer">

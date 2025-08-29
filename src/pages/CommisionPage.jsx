@@ -88,7 +88,7 @@ const CommissionControl = () => {
           <h2 className="text-base font-medium mb-4 text-gray-900">Global Settings</h2>
           <div className="bg-gray-50 border border-gray-200 rounded-md p-5">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Default Commission Rate</span>
+              <span className="text-sm text-black">Default Commission Rate</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -140,7 +140,7 @@ const CommissionControl = () => {
                     type="number"
                     value={vendor.rate}
                     onChange={(e) => updateVendorRate(vendor.id, e.target.value)}
-                    className="w-12 px-2 py-1 text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-12 px-2 py-1 text-sm text-center text-black border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                   <span className="text-sm text-gray-500">%</span>
                 </div>
@@ -153,7 +153,7 @@ const CommissionControl = () => {
       {/* Navigation */}
       <div className="flex justify-between items-center px-5 py-4 bg-gray-50 border-t border-gray-200">
         <button
-          onClick={() => handleNavigation('previous')}
+          onClick={() => setShowSaveModal(true)}
           className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -170,7 +170,7 @@ const CommissionControl = () => {
 
       {/* Save Changes Modal */}
       {showSaveModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 min-w-80 shadow-xl">
             <h3 className="text-lg font-medium mb-4 text-gray-900">Save changes?</h3>
             <div className="flex justify-end gap-3 mt-5">

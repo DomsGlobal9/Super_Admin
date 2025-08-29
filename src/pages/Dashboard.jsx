@@ -6,9 +6,13 @@ import ic_dash2 from '../assets/ic_dash2.png';
 import ic_dash3 from '../assets/ic_dash3.png';
 import ic_dash4 from '../assets/ic_dash4.png';
 
+
 // Firebase imports
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, query, orderBy } from "firebase/firestore";
+// import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import right_arrow from '../assets/right_arrow.png';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -39,6 +43,8 @@ const Dashboard = () => {
     pendingOrders: 0
   });
 
+  
+      const navigate = useNavigate();
   const [revenueData, setRevenueData] = useState([]);
   const [pieData, setPieData] = useState([]);
   const [topVendors, setTopVendors] = useState([]);
@@ -65,6 +71,7 @@ const Dashboard = () => {
       // Create a map of all user data
       const allUsersData = new Map();
       
+
       // Add vendor registration data
       vendorRegistrationsSnapshot.forEach((doc) => {
         allUsersData.set(doc.id, { id: doc.id, ...doc.data(), source: 'vendor_registrations' });
@@ -278,7 +285,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-2xl  font-bold text-gray-900">Dashboard</h1>
           {lastUpdated && (
             <p className="text-sm text-green-600 mt-1">
               Last updated: {lastUpdated.toLocaleTimeString()} - Live data from Firestore
@@ -297,48 +304,48 @@ const Dashboard = () => {
 
       {/* Top Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Total Revenue</span>
+        <div className="bg-white rounded-lg p-3  shadow-sm ">
+          <div className="flex items-center justify-between  mb-2">
+            <span className="text-md font-outfit pl-2 text-black">Total Revenue</span>
             <div className=" bg-blue-100 rounded flex items-center justify-center">
               {/* <TrendingUp className="w-4 h-4 text-blue-600" /> */}
               <img src={ic_dash1} className='h-12 w-12' alt="" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">₹{dashboardStats.totalRevenue.toLocaleString()}</div>
+          <div className="text-2xl font-bold pl-2 text-gray-900">₹{dashboardStats.totalRevenue.toLocaleString()}</div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
+        <div className="bg-white rounded-lg p-3 shadow-sm ">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Total Products</span>
+            <span className="text-md font-outfit pl-2 text-black">Total Products</span>
             <div className=" bg-[#506B85]  rounded flex items-center justify-center">
               {/* <ShoppingCart className="w-4 h-4 text-blue-600" /> */}
                           <img src={ic_dash2} className='h-12 p-2 w-12  ' alt="" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{dashboardStats.totalOrders.toLocaleString()}</div>
+          <div className="text-2xl font-bold pl-2 text-gray-900">{dashboardStats.totalOrders.toLocaleString()}</div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
+        <div className="bg-white rounded-lg p-3 shadow-sm ">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Active Vendors</span>
+            <span className="text-md font-outfit pl-2 text-black">Active Vendors</span>
             <div className=" bg-[#506B85] rounded flex items-center justify-center">
               {/* <Users className="w-4 h-4 text-blue-600" /> */}
                           <img src={ic_dash3} className='h-12 w-12' alt="" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{dashboardStats.activeVendors}</div>
+          <div className="text-2xl font-bold pl-2 text-gray-900">{dashboardStats.activeVendors}</div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
+        <div className="bg-white rounded-lg p-3 shadow-sm ">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Pending Products</span>
+            <span className="text-md font-outfit pl-2  text-black">Pending Products</span>
             <div className=" bg-blue-100 rounded flex items-center justify-center">
               {/* <Clock className="w-4 h-4 text-blue-600" /> */}
                           <img src={ic_dash4} className='h-12 w-12' alt="" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{dashboardStats.pendingOrders}</div>
+          <div className="text-2xl font-bold pl-2  text-gray-900">{dashboardStats.pendingOrders}</div>
         </div>
       </div>
 
@@ -346,7 +353,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         
         {/* Revenue Analysis Chart */}
-        <div className="lg:col-span-2 bg-white rounded-lg p-6 shadow-sm border">
+        <div className="lg:col-span-2 bg-white rounded-lg p-6 shadow-sm ">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Revenue Analysis</h2>
             <div className="flex items-center space-x-4">
@@ -444,11 +451,11 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Top Performing Vendors */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-white rounded-lg shadow-sm ">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Top Performing Vendors</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700">View All →</button>
+              <button className="text-sm text-blue-600 hover:text-blue-700" onClick={() => {navigate('/vendor-management')}} > <span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" /></span></button>
             </div>
           </div>
           
@@ -476,11 +483,11 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Alerts */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-white rounded-lg shadow-sm">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Recent Alerts</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700">View All →</button>
+              <button className="text-sm text-blue-600 hover:text-blue-700"  onClick={() => {navigate('/notifications')}}>View All →</button>
             </div>
           </div>
           

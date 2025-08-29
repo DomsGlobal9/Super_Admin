@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import Model from '../assets/model.png';
 import { ArrowUp, Eye, X, Check, AlertTriangle, Filter, ChevronDown, RefreshCw, Loader } from "lucide-react";
-
+import ic_uploadproduct1 from '../assets/ic_uploadproduct1.png';
+import ic_uploadproduct2 from '../assets/ic_uploadproduct2.png';
+import ic_uploadproduct3 from '../assets/ic_uploadproduct3.png';
+import ic_uploadproduct4 from '../assets/ic_uploadproduct4.png';
 // Firebase imports
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc } from "firebase/firestore";
@@ -746,20 +749,23 @@ export default function UploadedProducts() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-blue-50">
-                <ArrowUp className="h-5 w-5 text-blue-600" />
+              <div className="p-3 rounded-xl bg-[#506B85]">
+                {/* <ArrowUp className="h-5 w-5 text-blue-600" /> */}
+                <img src={ic_uploadproduct4} alt="" />
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Total uploads</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{uploadStats.totalUploads}</p>
+                
               </div>
             </div>
           </div>
           
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-orange-50">
-                <Loader className="h-5 w-5 text-orange-600" />
+              <div className="p-3 rounded-xl bg-[#506B85]">
+                {/* <Loader className="h-5 w-5 text-orange-600" /> */}
+                <img src={ic_uploadproduct3} alt="" />
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Processing</p>
@@ -770,8 +776,9 @@ export default function UploadedProducts() {
           
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-green-50">
-                <Check className="h-5 w-5 text-green-600" />
+              <div className="p-3 rounded-xl  bg-[#506B85]">
+                {/* <Check className="h-5 w-5 text-green-600" /> */}
+                <img src={ic_uploadproduct2} alt="" />
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Completed</p>
@@ -782,8 +789,9 @@ export default function UploadedProducts() {
           
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-red-50">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+              <div className="p-3 rounded-xl  bg-[#506B85]">
+                {/* <AlertTriangle className="h-5 w-5 text-red-600" /> */}
+                <img src={ic_uploadproduct1} alt="" />
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Failed</p>

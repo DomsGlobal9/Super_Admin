@@ -2,10 +2,10 @@ import React, { useMemo, useState ,useRef, useEffect} from "react";
 import ic_cust1 from "../assets/ic_customer1.png";
 import user from "../assets/user.png";
 import agent from "../assets/agent.png";
-// import ic_cust2 from "../assets/ic_customer2";
-// import ic_cust3 from "../assets/ic_customer3";
+import ic_cust2 from "../assets/ic_customer2.png";
+import ic_cust3 from "../assets/ic_customer3.png";
 
-// import ic_cust4 from "../assets/ic_customer4";
+import ic_cust4 from "../assets/ic_customer4.png";
 
 
 import {
@@ -40,13 +40,18 @@ const COLORS = {
   info: "#06B6D4",
 };
 
-function Stat({ label, value }) {
+
+// Update Stat component to accept `img` prop
+function Stat({ label, value, img }) {
   return (
     <div className="rounded-lg bg-white shadow-sm border border-slate-200 p-4">
       <div className="flex items-center gap-3">
         <div className="rounded-lg p-2 bg-slate-50">
-          {/* <Icon className="h-4 w-4 text-slate-600" /> */}
-          <img src={ic_cust1} alt="" />
+          {img ? (
+            <img src={img} alt={label} className="h-12 w-12" />
+          ) : (
+            <div className="h-12 w-12 bg-gray-200" /> // Fallback if img is missing
+          )}
         </div>
         <div className="flex-1">
           <div className="text-xs text-slate-500 font-medium">{label}</div>
@@ -331,10 +336,10 @@ export default function CustomerSupport() {
 
   const stats = useMemo(
     () => [
-      { icon: TicketCheck, label: "Open Tickets", value: "40,689" },
-      { icon: Clock, label: "In Progress", value: "689" },
-      { icon: CheckCircle2, label: "Resolved Tickets", value: "50" },
-      { icon: TimerReset, label: "Avg Response Time", value: "1.4hrs" },
+      { icon: TicketCheck, label: "Open Tickets", value: "40,689", img: ic_cust1 },
+      { icon: Clock, label: "In Progress", value: "689", img: ic_cust2 },
+      { icon: CheckCircle2, label: "Resolved Tickets", value: "50", img: ic_cust3 },
+      { icon: TimerReset, label: "Avg Response Time", value: "1.4hrs", img: ic_cust4 },
     ],
     []
   );
@@ -380,7 +385,7 @@ export default function CustomerSupport() {
         {/* Top cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((s, i) => (
-            <Stat key={i} icon={s.icon} label={s.label} value={s.value} />
+            <Stat key={i} icon={s.icon} img={s.img} label={s.label} value={s.value} />
           ))}
         </div>
 
