@@ -7,7 +7,7 @@ const Layout = () => {
   const [open, setOpen] = useState(false); // central sidebar state
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
+    <div className="flex h-full md:h-[850px] overflow-x-scroll scrollbar-none  overflow-y-scroll scrollbar-none  w-screen  overflow-hidden">
       {/* Sidebar (gets open + setOpen) */}
       <Sidebar open={open} setOpen={setOpen} />
 

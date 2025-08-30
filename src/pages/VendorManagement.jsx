@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { X, User, Package, DollarSign, AlertTriangle, Clock, Trash2, RefreshCw, Eye } from "lucide-react";
+import { X, User, Package, DollarSign, AlertTriangle, Clock, Trash2, RefreshCw, Eye, ArrowLeft } from "lucide-react";
+
+// Firebase imports
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+
+
+
 
 import vendormanage_ic1 from '../assets/vendormanage_ic1.png';
 import vendormanage_ic2 from '../assets/vendormanage_ic2.png';
 import vendormanage_ic3 from '../assets/vendormanage_ic3.png';
 import vendormanage_ic4 from '../assets/vendormanage_ic4.png';
-// Firebase imports
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
-
 // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCwlxdZKM8dagbu43v7NVFclex4QsTO4hw",
@@ -36,8 +39,62 @@ export default function VendorManagement() {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   
+  // Product view states
+  const [showProducts, setShowProducts] = useState(false);
+  const [vendorProducts, setVendorProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState(null);
+  
   // Vendor data
   const [vendorsData, setVendorsData] = useState([]);
+
+  // Fetch vendor products
+  const fetchVendorProducts = async (vendorId) => {
+    setProductsLoading(true);
+    setProductsError(null);
+    
+    try {
+      const productsRef = collection(db, 'users', vendorId, 'products');
+      const productsSnapshot = await getDocs(productsRef);
+      
+      const products = [];
+      productsSnapshot.forEach((doc) => {
+        products.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      // Sort by creation date (most recent first)
+      products.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB - dateA;
+      });
+      
+      setVendorProducts(products);
+    } catch (error) {
+      console.error('Error fetching vendor products:', error);
+      setProductsError(error.message);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  // Handle view products button click
+  const handleViewProducts = () => {
+    if (selectedVendor) {
+      setShowProducts(true);
+      fetchVendorProducts(selectedVendor.id);
+    }
+  };
+
+  // Handle back to vendor details
+  const handleBackToVendorDetails = () => {
+    setShowProducts(false);
+    setVendorProducts([]);
+    setProductsError(null);
+  };
 
   // Fetch all vendors and their data
   const fetchVendorsData = async (showRefreshing = false) => {
@@ -223,6 +280,14 @@ export default function VendorManagement() {
     setShowRemoveSuccess(false);
   };
 
+  // Close modal handler
+  const handleCloseModal = () => {
+    setSelectedVendor(null);
+    setShowProducts(false);
+    setVendorProducts([]);
+    setProductsError(null);
+  };
+
   // Loading state
   if (loading && !vendorsData.length) {
     return (
@@ -307,6 +372,7 @@ export default function VendorManagement() {
               <p className="text-2xl font-bold text-gray-900">{vendorsData.length}</p>
             </div>
             <img src={vendormanage_ic1} className="h-11" alt="" />
+            {/* <User className="w-8 h-8 text-blue-500" /> */}
           </div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow-sm ">
@@ -315,10 +381,9 @@ export default function VendorManagement() {
               <p className="text-black text-sm">Active Vendors</p>
               <p className="text-2xl font-bold text-grey-500">{vendorsData.filter(v => v.status === 'Active').length}</p>
             </div>
-            <div className=" h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              {/* <div className="w-4 h-4 bg-green-600 rounded"></div>
-               */}
-            <img src={vendormanage_ic2} className="h-11" alt="" />
+            <div className=" bg-green-100 rounded-lg flex items-center justify-center">
+              {/* <div className="w-4 h-4 bg-green-600 rounded"></div> */}
+                          <img src={vendormanage_ic2} className="h-12 w-12"  alt="" />
             </div>
           </div>
         </div>
@@ -328,9 +393,10 @@ export default function VendorManagement() {
               <p className="text-gray-500 text-sm">Total Products</p>
               <p className="text-2xl font-bold  text-black">{vendorsData.reduce((sum, v) => sum + v.products, 0)}</p>
             </div>
-            {/* <Package className="w-8 h-8 text-grey-500" /> */}
-            <div className="bg-[#506B85] h-11 w-11 rounded-lg "><img src={vendormanage_ic3} className="h-8 pl-3 pt-2 " alt="" /></div>
-           
+            {/* <Package className="w-8 h-8 text-blue-500" /> */}
+            <div className="bg-[#506B85] h-12 w-12 rounded-lg">
+                        <img src={vendormanage_ic3} className=" p-2" alt="" />
+                        </div>
           </div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow-sm ">
@@ -339,8 +405,8 @@ export default function VendorManagement() {
               <p className="text-gray-500 text-sm">Total Revenue</p>
               <p className="text-2xl font-bold text-black">₹{vendorsData.reduce((sum, v) => sum + parseFloat(v.revenue), 0).toLocaleString()}</p>
             </div>
-            {/* <DollarSign className="w-8 h-8 text-grey-500" /> */}
-            <img src={vendormanage_ic4} className="h-11" alt="" />
+            {/* <DollarSign className="w-8 h-8 text-green-500" /> */}
+                        <img src={vendormanage_ic4} className="h-11" alt="" />
           </div>
         </div>
       </div>
@@ -490,7 +556,7 @@ export default function VendorManagement() {
       </div>
 
       {/* Vendor Details Modal */}
-      {selectedVendor && !showRemoveConfirm && (
+      {selectedVendor && !showRemoveConfirm && !showProducts && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center overflow-y-auto p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl mx-4">
             {/* Header with close button */}
@@ -499,7 +565,7 @@ export default function VendorManagement() {
                 Vendor Details
               </h3>
               <button
-                onClick={() => setSelectedVendor(null)}
+                onClick={handleCloseModal}
                 className="text-gray-400 hover:text-gray-600 transition-colors p-1"
               >
                 <X size={20} />
@@ -627,9 +693,11 @@ export default function VendorManagement() {
               {/* Action Buttons */}
               <div className="flex flex-col gap-3 pt-4">
                 <button 
-                  className="w-full text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-600 hover:bg-blue-700"
+                  onClick={handleViewProducts}
+                  className="w-full text-white px-4 py-3 rounded-lg font-medium transition-colors bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
                 >
-                  View Products ({selectedVendor.products})
+                  <Package className="w-4 h-4" />
+                  View All Products ({selectedVendor.products})
                 </button>
 
                 <button 
@@ -639,6 +707,229 @@ export default function VendorManagement() {
                   Remove Vendor
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Vendor Products Modal */}
+      {selectedVendor && showProducts && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center overflow-y-auto p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl mx-4">
+            {/* Header with back and close buttons */}
+            <div className="flex items-center justify-between p-4 sm:p-6 pb-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleBackToVendorDetails}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    {selectedVendor.name} - Products
+                  </h3>
+                  <p className="text-sm text-gray-500">{selectedVendor.shopName}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Products Content */}
+            <div className="p-4 sm:p-6">
+              {productsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading products...</p>
+                </div>
+              ) : productsError ? (
+                <div className="text-center py-8">
+                  <div className="text-red-500 mb-4">
+                    <AlertTriangle className="w-8 h-8 mx-auto" />
+                  </div>
+                  <p className="text-red-600 mb-4">Error loading products: {productsError}</p>
+                  <button 
+                    onClick={() => fetchVendorProducts(selectedVendor.id)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : vendorProducts.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">No Products Found</h4>
+                  <p className="text-gray-500">This vendor hasn't added any products yet.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Products Summary */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-blue-600">{vendorProducts.length}</p>
+                        <p className="text-sm text-blue-700">Total Products</p>
+                      </div>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-green-600">{vendorProducts.filter(p => p.isPublished).length}</p>
+                        <p className="text-sm text-green-700">Published</p>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-600">{vendorProducts.filter(p => !p.isPublished).length}</p>
+                        <p className="text-sm text-gray-700">Draft</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Products Table - Desktop */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="text-gray-700 bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 rounded-tl-lg">Product</th>
+                          <th className="px-4 py-3">Category</th>
+                          <th className="px-4 py-3">Price</th>
+                          <th className="px-4 py-3">Stock</th>
+                          <th className="px-4 py-3">Status</th>
+                          <th className="px-4 py-3 rounded-tr-lg">Added</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendorProducts.map((product, index) => (
+                          <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                {product.images && product.images[0] ? (
+                                  <img 
+                                    src={product.images[0]} 
+                                    alt={product.name}
+                                    className="w-10 h-10 rounded-lg object-cover bg-gray-100"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <Package className="w-5 h-5 text-gray-400" />
+                                  </div>
+                                )}
+                                <div>
+                                  <p className="font-medium text-gray-900 truncate max-w-[200px]">
+                                    {product.name || 'Unnamed Product'}
+                                  </p>
+                                  <p className="text-xs text-gray-500 truncate max-w-[200px]">
+                                    {product.description || 'No description'}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="text-sm text-gray-700">
+                                {product.category || 'Uncategorized'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="font-medium text-gray-900">
+                                ₹{product.price ? parseFloat(product.price).toLocaleString() : '0'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="text-sm text-gray-700">
+                                {product.stock || 'N/A'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                product.isPublished 
+                                  ? "bg-green-100 text-green-700" 
+                                  : "bg-gray-100 text-gray-700"
+                              }`}>
+                                {product.isPublished ? 'Published' : 'Draft'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="text-xs text-gray-500">
+                                {product.createdAt ? new Date(product.createdAt).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric'
+                                }) : 'Unknown'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Products Cards - Mobile */}
+                  <div className="lg:hidden space-y-4">
+                    {vendorProducts.map((product) => (
+                      <div key={product.id} className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex gap-3 mb-3">
+                          {product.images && product.images[0] ? (
+                            <img 
+                              src={product.images[0]} 
+                              alt={product.name}
+                              className="w-12 h-12 rounded-lg object-cover bg-gray-200 flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                              <Package className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-gray-900 truncate">
+                              {product.name || 'Unnamed Product'}
+                            </h4>
+                            <p className="text-sm text-gray-500 truncate">
+                              {product.category || 'Uncategorized'}
+                            </p>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                            product.isPublished 
+                              ? "bg-green-100 text-green-700" 
+                              : "bg-gray-100 text-gray-700"
+                          }`}>
+                            {product.isPublished ? 'Published' : 'Draft'}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <span className="text-gray-500">Price:</span>
+                            <div className="font-medium text-gray-900">₹{product.price ? parseFloat(product.price).toLocaleString() : '0'}</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Stock:</span>
+                            <div className="font-medium text-gray-900">{product.stock || 'N/A'}</div>
+                          </div>
+                        </div>
+                        
+                        {product.description && (
+                          <div className="mt-3">
+                            <p className="text-xs text-gray-500 mb-1">Description:</p>
+                            <p className="text-sm text-gray-700 line-clamp-2">{product.description}</p>
+                          </div>
+                        )}
+                        
+                        <div className="mt-3 text-xs text-gray-500">
+                          Added: {product.createdAt ? new Date(product.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          }) : 'Unknown'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -737,3 +1028,24 @@ export default function VendorManagement() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import vendormanage_ic1 from '../assets/vendormanage_ic1.png';
+// import vendormanage_ic2 from '../assets/vendormanage_ic2.png';
+// import vendormanage_ic3 from '../assets/vendormanage_ic3.png';
+// import vendormanage_ic4 from '../assets/vendormanage_ic4.png';
+//             <img src={vendormanage_ic1} className="h-11" alt="" />

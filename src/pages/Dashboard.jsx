@@ -455,7 +455,7 @@ const Dashboard = () => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Top Performing Vendors</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700" onClick={() => {navigate('/vendor-management')}} > <span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" /></span></button>
+              <button className="text-sm text-blue-600 hover:text-blue-700" onClick={() => {navigate('/layout/vendor-management')}} > <span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" /></span></button>
             </div>
           </div>
           
@@ -487,7 +487,7 @@ const Dashboard = () => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Recent Alerts</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700"  onClick={() => {navigate('/notifications')}}>View All →</button>
+              <button className="text-sm text-blue-600 hover:text-blue-700"  onClick={() => {navigate('/layout/notifications')}}><span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" /></span></button>
             </div>
           </div>
           
