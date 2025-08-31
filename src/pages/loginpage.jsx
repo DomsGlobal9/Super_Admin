@@ -22,6 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+
 // Authentication function
 const authenticateAdmin = async (email, password) => {
   try {
@@ -139,6 +140,7 @@ const navigate = useNavigate();
         localStorage.setItem('dvyb_admin_session', JSON.stringify(result.admin));
         setAdminInfo(result.admin);
         // setIsAuthenticated(true);
+      localStorage.setItem("email", email)
         navigate('/layout');
       } else {
         setAuthError(result.error || 'Authentication failed');

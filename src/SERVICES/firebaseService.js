@@ -1,22 +1,23 @@
 // services/firebaseService.js
-// import { 
-//   collection, 
-//   addDoc, 
-//   getDocs, 
-//   doc, 
-//   updateDoc, 
-//   deleteDoc, 
-//   query, 
-//   orderBy,
-//   serverTimestamp,
-//   getDoc 
-// } from 'firebase/firestore';
-// import { 
-//   ref, 
-//   uploadBytes, 
-//   getDownloadURL, 
-//   deleteObject 
-// } from 'firebase/storage';
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  doc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  orderBy,
+  serverTimestamp,
+  getDoc 
+} from 'firebase/firestore';
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL, 
+  deleteObject 
+} from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebaseConfig'; // Adjust the import path as needed
 
 class FirebaseService {

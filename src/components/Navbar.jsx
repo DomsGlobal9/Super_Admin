@@ -1,37 +1,63 @@
-import { Bell, Menu } from "lucide-react";
+import { Bell, Menu, LogOut, X, Upload } from "lucide-react";
 import dvyb from "../assets/dvybeLogo.png";
 import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { auth, storage } from "../firebaseConfig"; 
+import { onAuthStateChanged, signOut, updateProfile } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import profileLogo from "../assets/logo_profile.png"
 
 const Navbar = ({ toggleSidebar }) => {
-
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [email, setEmail] = useState("")
 
-    const handleLogout = () => {
-    localStorage.removeItem('dvyb_admin_session');
-    // setIsAuthenticated(false);
-    // setAdminInfo(null);
-    // setEmail('');
-    // setPassword('');
-    // setAuthError('');
-    // // Reset dashboard data
-    // setDashboardStats({
-    //   totalRevenue: 0,
-    //   totalOrders: 0,
-    //   activeVendors: 0,
-    //   pendingOrders: 0
-    // });
-    // setRevenueData([]);
-    // setPieData([]);
-    // setTopVendors([]);
-    // setRecentAlerts([]);
-    navigate('/login');
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      // setEmail(localStorage.getItem(email))
+      // console.log(localStorage.getItem(email))
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("dvyb_admin_session");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout Error:", error);
+    }
+  };
+
+  // 🔹 Upload profile image
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !user) return;
+
+    setUploading(true);
+    try {
+      const storageRef = ref(storage, `profileImages/${user.uid}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Update Firebase Auth profile
+      await updateProfile(user, { photoURL: downloadURL });
+
+      // Update UI
+      setUser({ ...user, photoURL: downloadURL });
+    } catch (err) {
+      console.error("Error uploading image:", err);
+    }
+    setUploading(false);
   };
 
   return (
-    <header className="bg-white   shadow-sm  flex items-center justify-between px-6 py-3">
+    <header className="bg-white shadow-sm flex items-center justify-between px-6 py-3">
       <div className="flex items-center gap-3">
-        {/* Hamburger for mobile */}
         <button
           className="lg:hidden text-gray-700"
           onClick={toggleSidebar}
@@ -39,41 +65,89 @@ const Navbar = ({ toggleSidebar }) => {
         >
           <Menu size={24} />
         </button>
-
-      
       </div>
- <img src={dvyb} className="block lg:hidden" alt="" />
-      {/* Right side (notifications + profile) */}
-      <div className="flex items-center gap-6">
 
-          {/* Search bar */}
-        <div className="hidden sm:flex items-center border border-black   w-72 rounded-lg px-3 py-2  ">
-          {/* <span className="text-gray-400 mr-2">🔍</span> */}
+      <img src={dvyb} className="block lg:hidden" alt="" />
+
+      <div className="flex items-center gap-6">
+        {/* Search bar */}
+        <div className="hidden sm:flex items-center border border-black w-72 rounded-lg px-3 py-2">
           <input
             type="text"
-            placeholder="Search "
+            placeholder="Search"
             className="flex-1 outline-none placeholder-black px-6 text-sm text-black"
           />
         </div>
+
+        {/* Notifications */}
         <div className="relative cursor-pointer">
-            
-          {/* <button  className="bg-red-600 rounded-lg"               >logout</button> */}
           <Bell className="text-gray-600" size={22} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
             6
           </span>
         </div>
-        {/* <div> <button onClick={handleLogout} className="w-full flex items-center gap-2 justify-center bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100">
-              <LogOut size={20} /> Logout
-            </button></div> */}
-        <div className="flex items-center gap-3">
-          <img src="https://i.pravatar.cc/40" alt="profile" className="w-10 h-10 rounded-full" />
+
+        {/* Profile */}
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <img
+            src={user?.photoURL || profileLogo }
+            alt="profile"
+            className="w-10 h-10 rounded-full object-cover"
+          />
           <div className="hidden sm:block">
-            {/* <p className="font-medium text-sm">Moni Roy</p> */}
-            <p className="text-xs text-gray-500">Admin</p>
+            <p className="text-xs text-gray-500">Super Admin</p>
           </div>
         </div>
       </div>
+
+      {/* 🔹 Profile Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-lg w-80 relative text-center">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-black"
+            >
+              <X size={22} />
+            </button>
+
+            {/* Profile Image */}
+            <img
+              src={user?.photoURL || profileLogo }
+              alt="Profile"
+              className="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
+            />
+
+            {/* Upload Image */}
+            <label className="cursor-pointer flex items-center justify-center gap-2 text-blue-600 hover:underline">
+              <Upload size={18} />
+              {uploading ? "Uploading..." : "Change Profile Picture"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
+
+            {/* Email */}
+            <h3 className="text-gray-800 font-medium mt-3">
+              { email || "superadmin@gmail.com"}
+            </h3>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="mt-4 w-full flex items-center gap-2 justify-center bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100"
+            >
+              <LogOut size={20} /> Logout
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
