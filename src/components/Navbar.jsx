@@ -2,17 +2,17 @@ import { Bell, Menu, LogOut, X, Upload } from "lucide-react";
 import dvyb from "../assets/dvybeLogo.png";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { auth, storage } from "../firebaseConfig"; 
+import { auth, storage } from "../firebaseConfig";
 import { onAuthStateChanged, signOut, updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import profileLogo from "../assets/logo_profile.png"
+import profileLogo from "../assets/logo_profile.png";
 
 const Navbar = ({ toggleSidebar }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -78,22 +78,23 @@ const Navbar = ({ toggleSidebar }) => {
             className="flex-1 outline-none placeholder-black px-6 text-sm text-black"
           />
         </div>
-
         {/* Notifications */}
-        <div className="relative cursor-pointer">
+        <div
+          className="relative cursor-pointer"
+          onClick={() => navigate("/layout/notifications")}
+        >
           <Bell className="text-gray-600" size={22} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
             6
           </span>
         </div>
-
         {/* Profile */}
         <div
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => setIsModalOpen(true)}
         >
           <img
-            src={user?.photoURL || profileLogo }
+            src={user?.photoURL || profileLogo}
             alt="profile"
             className="w-10 h-10 rounded-full object-cover"
           />
@@ -116,7 +117,7 @@ const Navbar = ({ toggleSidebar }) => {
 
             {/* Profile Image */}
             <img
-              src={user?.photoURL || profileLogo }
+              src={user?.photoURL || profileLogo}
               alt="Profile"
               className="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
             />
@@ -135,7 +136,7 @@ const Navbar = ({ toggleSidebar }) => {
 
             {/* Email */}
             <h3 className="text-gray-800 font-medium mt-3">
-              { email || "superadmin@gmail.com"}
+              {email || "superadmin@gmail.com"}
             </h3>
 
             {/* Logout Button */}
