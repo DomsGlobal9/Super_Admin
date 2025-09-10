@@ -106,11 +106,11 @@ const Navbar = ({ toggleSidebar }) => {
 
       {/* 🔹 Profile Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/10 backdrop-blur-md flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-2xl shadow-lg w-80 relative text-center">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-black"
+              className="absolute top-3 right-3 cursor-pointer text-gray-600 hover:text-black"
             >
               <X size={22} />
             </button>
@@ -142,7 +142,7 @@ const Navbar = ({ toggleSidebar }) => {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="mt-4 w-full flex items-center gap-2 justify-center bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100"
+              className="mt-4 w-full cursor-pointer flex items-center gap-2 justify-center bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100"
             >
               <LogOut size={20} /> Logout
             </button>
