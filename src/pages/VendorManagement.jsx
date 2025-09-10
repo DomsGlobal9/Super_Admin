@@ -214,6 +214,8 @@ export default function VendorManagement() {
               shopName: userData.shopDetails?.shopName || 'No shop name',
               businessType: userData.shopDetails?.businessType || 'Not specified',
               category: userData.category || 'General',
+              imagepath : userData.imageUrls || 'No image',
+
               joinedDate: userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-US', { 
                 month: 'short', 
                 day: 'numeric',
@@ -805,27 +807,30 @@ export default function VendorManagement() {
                       </thead>
                       <tbody>
                         {vendorProducts.map((product, index) => (
+                          // {console.log(product.imagepath  )}
                           <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                {product.images && product.images[0] ? (
+                                {product.imageUrls && product.imageUrls[0]  ? (
                                   <img 
-                                    src={product.images[0]} 
+                              src={product.imageUrls[0]} 
+
                                     alt={product.name}
                                     className="w-10 h-10 rounded-lg object-cover bg-gray-100"
                                   />
-                                ) : (
+                                ) 
+                                : (
                                   <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
                                     <Package className="w-5 h-5 text-gray-400" />
                                   </div>
                                 )}
                                 <div>
                                   <p className="font-medium text-gray-900 truncate max-w-[200px]">
-                                    {product.name || 'Unnamed Product'}
+                                    {product.name }
                                   </p>
-                                  <p className="text-xs text-gray-500 truncate max-w-[200px]">
-                                    {product.description || 'No description'}
-                                  </p>
+                                  <h2 className="font-medium text-black truncate max-w-[200px]">
+                                    {product.description || 'Unnamed Product'}
+                                  </h2>
                                 </div>
                               </div>
                             </td>
