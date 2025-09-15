@@ -385,7 +385,7 @@ const navigate = useNavigate();
   }
 
   // Login Screen
-if (!isAuthenticated) {
+// if (!isAuthenticated) {
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-slate-300 via-slate-200 to-slate-300 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md"> {/* Added max-w-md to limit form width */}
@@ -522,4 +522,4 @@ if (!isAuthenticated) {
     </div>
   );
 }
-}
+// }

@@ -1,9 +1,9 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap'); */
 
-@theme {
+/* @theme {
   --font-outfit: "Outfit", sans-serif;
-}
+} */
 
 :root {
 font-family: var(--font-outfit);
@@ -80,6 +80,9 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 } */
+ body{
+  font-family: "Outfit";
+ }
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -89,7 +92,5 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
-    /* background-color: #f9f9f9; */
-  }
+ 
 }
