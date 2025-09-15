@@ -13,15 +13,37 @@ const Navbar = ({ toggleSidebar }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [email, setEmail] = useState("");
+// Instead of replacing user object, just update photoURL locally separately
+const [userPhotoURL, setUserPhotoURL] = useState(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      // setEmail(localStorage.getItem(email))
-      // console.log(localStorage.getItem(email))
-    });
-    return () => unsubscribe();
-  }, []);
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser);
+    setUserPhotoURL(currentUser?.photoURL || null);
+  });
+  return () => unsubscribe();
+}, []);
+
+const handleImageUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file || !user) return;
+
+  setUploading(true);
+  try {
+    const storageRef = ref(storage, `profile_images/${user.uid}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    await updateProfile(user, { photoURL: downloadURL });
+
+    setUserPhotoURL(downloadURL);  // update UI photo url separately
+  } catch (err) {
+    console.error("Error uploading image:", err.code, err.message || err);
+  }
+  setUploading(false);
+};
+
+
 
   const handleLogout = async () => {
     try {
@@ -33,27 +55,62 @@ const Navbar = ({ toggleSidebar }) => {
     }
   };
 
-  // 🔹 Upload profile image
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !user) return;
+  // // 🔹 Upload profile image
+  // const handleImageUpload = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file || !user) return;
 
-    setUploading(true);
-    try {
-      const storageRef = ref(storage, `profile_images/${user.uid}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
+  //   setUploading(true);
+  //   try {
+  //     const storageRef = ref(storage, `profile_images/${user.uid}`);
+  //     await uploadBytes(storageRef, file);
+  //     const downloadURL = await getDownloadURL(storageRef);
 
-      // Update Firebase Auth profile
-      await updateProfile(user, { photoURL: downloadURL });
+  //     // Update Firebase Auth profile
+  //     await updateProfile(user, { photoURL: downloadURL });
 
-      // Update UI
-      setUser({ ...user, photoURL: downloadURL });
-    } catch (err) {
-      console.error("Error uploading image:", err);
-    }
-    setUploading(false);
-  };
+  //     // Update UI
+  //     setUser({ ...user, photoURL: downloadURL });
+  //   } catch (err) {
+  //     console.error("Error uploading image:", err);
+  //   }
+  //   setUploading(false);
+  // };
+//   const handleImageUpload = async (e) => {
+//   const file = e.target.files[0];
+//   if (!file || !user) return;
+
+//   // Validate file type and size
+//   const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+//   if (!allowedTypes.includes(file.type)) {
+//     alert("Please upload an image file (jpeg, png, gif)");
+//     return;
+//   }
+//   if (file.size > 1 * 1024 * 1024) { // 1MB limit
+//     alert("Image size must be less than 1MB");
+//     return;
+//   }
+
+//   setUploading(true);
+
+//   try {
+//     const storageRef = ref(storage, `profile_images/${user.uid}`);
+//     await uploadBytes(storageRef, file);
+//     const downloadURL = await getDownloadURL(storageRef);
+
+//     // Update Firebase Auth profile photoURL
+//     await updateProfile(user, { photoURL: downloadURL });
+
+//     // Update local UI state
+//     setUser({ ...user, photoURL: downloadURL });
+//   } catch (err) {
+//     console.error("Error uploading image:", err.code, err.message || err);
+//     alert(`Upload failed: ${err.message || err}`);
+//   }
+
+//   setUploading(false);
+// };
+
 
   return (
     <header className="bg-white shadow-sm flex items-center justify-between px-6 py-3">
@@ -94,7 +151,8 @@ const Navbar = ({ toggleSidebar }) => {
           onClick={() => setIsModalOpen(true)}
         >
           <img
-            src={user?.photoURL || profileLogo}
+            // src={user?.userPhotoURL || profileLogo}
+            src={userPhotoURL || profileLogo}
             alt="profile"
             className="w-10 h-10 rounded-full object-cover"
           />
