@@ -155,7 +155,6 @@
 
 // export default Navbar;
 
-
 import { Bell, Menu, LogOut, X, Upload, Camera } from "lucide-react";
 import dvyb from "../assets/dvybeLogo.png";
 import { useNavigate } from "react-router-dom";
@@ -173,35 +172,40 @@ const Navbar = ({ toggleSidebar }) => {
   const [email, setEmail] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         setEmail(currentUser.email || localStorage.getItem("email") || "");
+        // Force refresh user data to get latest photoURL
+        currentUser.reload().then(() => {
+          setUser({ ...currentUser });
+        }).catch(err => console.log('User reload failed:', err));
       }
     });
     return () => unsubscribe();
   }, []);
-
-  
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       localStorage.removeItem("dvyb_admin_session");
       localStorage.removeItem("email");
+      localStorage.removeItem("userPhotoURL");
       navigate("/login");
     } catch (error) {
       console.error("Logout Error:", error);
     }
   };
 
-  // 🔹 Upload profile image with proper error handling
+  // Enhanced upload function with better error handling for deployment
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file || !user) return;
+    if (!file || !user) {
+      setUploadError("No file selected or user not authenticated");
+      return;
+    }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
@@ -220,13 +224,36 @@ const Navbar = ({ toggleSidebar }) => {
     setUploadSuccess(false);
 
     try {
+      // Check if user is authenticated
+      if (!auth.currentUser) {
+        throw new Error("User not authenticated. Please log in again.");
+      }
+
+      // Get fresh auth token to ensure permissions
+      const token = await auth.currentUser.getIdToken(true);
+      console.log("Auth token refreshed for upload");
+
       // Use the correct path that matches your Firebase rules
       const storageRef = ref(storage, `profile_images/${user.uid}`);
       
       console.log("Uploading to path:", `profile_images/${user.uid}`);
+      console.log("File details:", {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
       
-      // Upload the file
-      const snapshot = await uploadBytes(storageRef, file);
+      // Add metadata for better upload handling
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          uploadedBy: user.uid,
+          uploadedAt: new Date().toISOString()
+        }
+      };
+
+      // Upload the file with metadata
+      const snapshot = await uploadBytes(storageRef, file, metadata);
       console.log("Upload successful:", snapshot);
       
       // Get download URL
@@ -234,29 +261,54 @@ const Navbar = ({ toggleSidebar }) => {
       console.log("Download URL:", downloadURL);
 
       // Update Firebase Auth profile
-      await updateProfile(user, { photoURL: downloadURL });
+      await updateProfile(auth.currentUser, { photoURL: downloadURL });
       console.log("Profile updated successfully");
 
-      // Force re-render by updating user state
-      setUser({ ...user, photoURL: downloadURL });
+      // Reload user to get fresh data from Firebase
+      await auth.currentUser.reload();
+      
+      // Get the updated user object
+      const updatedUser = auth.currentUser;
+      
+      // Force update the user state with fresh data
+      setUser({ ...updatedUser, photoURL: downloadURL });
+      
+      // Store in localStorage for persistence
+      localStorage.setItem('userPhotoURL', downloadURL);
+      
       setUploadSuccess(true);
       
       // Clear success message after 3 seconds
       setTimeout(() => setUploadSuccess(false), 3000);
       
     } catch (err) {
-      console.error("Error uploading image:", err);
+      console.error("Detailed error uploading image:", err);
       
-      // Handle specific Firebase errors
+      // Enhanced error handling for deployment issues
       if (err.code === 'storage/unauthorized') {
-        setUploadError("Permission denied. Please check your authentication.");
+        setUploadError("Permission denied. Please refresh the page and try again.");
       } else if (err.code === 'storage/canceled') {
         setUploadError("Upload was canceled.");
       } else if (err.code === 'storage/unknown') {
-        setUploadError("An unknown error occurred. Please try again.");
+        setUploadError("Network error. Please check your connection and try again.");
+      } else if (err.code === 'storage/retry-limit-exceeded') {
+        setUploadError("Upload failed after multiple attempts. Please try again later.");
+      } else if (err.code === 'auth/requires-recent-login') {
+        setUploadError("Please log out and log back in, then try uploading again.");
+      } else if (err.message.includes('CORS')) {
+        setUploadError("Network configuration error. Please contact support.");
+      } else if (err.message.includes('network')) {
+        setUploadError("Network error. Please check your connection.");
       } else {
         setUploadError(`Upload failed: ${err.message}`);
       }
+      
+      // Log detailed error for debugging
+      console.error("Upload error details:", {
+        code: err.code,
+        message: err.message,
+        stack: err.stack
+      });
     } finally {
       setUploading(false);
     }
@@ -311,9 +363,14 @@ const Navbar = ({ toggleSidebar }) => {
         >
           <div className="relative">
             <img
-              src={user?.photoURL || profileLogo}
+              key={user?.photoURL || Date.now()} // Force re-render with timestamp
+              src={user?.photoURL || localStorage.getItem('userPhotoURL') || profileLogo}
               alt="profile"
               className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+              onError={(e) => {
+                console.log('Profile image load failed, using fallback');
+                e.target.src = profileLogo;
+              }}
             />
             {uploading && (
               <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
@@ -327,7 +384,7 @@ const Navbar = ({ toggleSidebar }) => {
         </div>
       </div>
 
-      {/* 🔹 Enhanced Profile Modal */}
+      {/* Enhanced Profile Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-2xl shadow-xl w-80 relative text-center">
@@ -341,12 +398,13 @@ const Navbar = ({ toggleSidebar }) => {
             {/* Profile Image with Upload Overlay */}
             <div className="relative inline-block mb-4">
               <img
-                key={user?.photoURL || 'default'} // Force re-render when photoURL changes
+                key={user?.photoURL || Date.now()} // Force re-render
                 src={user?.photoURL || localStorage.getItem('userPhotoURL') || profileLogo}
                 alt="Profile"
                 className="w-20 h-20 rounded-full mx-auto object-cover border-4 border-gray-100"
                 onError={(e) => {
-                  e.target.src = profileLogo; // Fallback if image fails to load
+                  console.log('Modal profile image load failed, using fallback');
+                  e.target.src = profileLogo;
                 }}
               />
               
@@ -409,6 +467,12 @@ const Navbar = ({ toggleSidebar }) => {
               <p className="text-gray-500 text-xs mt-1">
                 UID: {user?.uid?.substring(0, 8)}...
               </p>
+              {/* Debug info in development */}
+              {process.env.NODE_ENV === 'development' && (
+                <p className="text-gray-400 text-xs mt-1">
+                  PhotoURL: {user?.photoURL ? 'Set' : 'Not set'}
+                </p>
+              )}
             </div>
 
             {/* Logout Button */}
