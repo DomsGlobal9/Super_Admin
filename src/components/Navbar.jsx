@@ -173,6 +173,7 @@ const Navbar = ({ toggleSidebar }) => {
   const [email, setEmail] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -183,6 +184,8 @@ const Navbar = ({ toggleSidebar }) => {
     });
     return () => unsubscribe();
   }, []);
+
+  
 
   const handleLogout = async () => {
     try {
@@ -338,9 +341,13 @@ const Navbar = ({ toggleSidebar }) => {
             {/* Profile Image with Upload Overlay */}
             <div className="relative inline-block mb-4">
               <img
-                src={user?.photoURL || profileLogo}
+                key={user?.photoURL || 'default'} // Force re-render when photoURL changes
+                src={user?.photoURL || localStorage.getItem('userPhotoURL') || profileLogo}
                 alt="Profile"
                 className="w-20 h-20 rounded-full mx-auto object-cover border-4 border-gray-100"
+                onError={(e) => {
+                  e.target.src = profileLogo; // Fallback if image fails to load
+                }}
               />
               
               {uploading && (
