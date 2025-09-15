@@ -317,7 +317,6 @@
 
 // export default CommissionControl;
 
-
 import React, { useState, useEffect } from 'react';
 import { Search, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
@@ -348,6 +347,58 @@ const CommissionControl = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Helper function to safely extract vendor name
+  const extractVendorName = (data) => {
+    // Function to safely check and return a valid string
+    const safeString = (value) => {
+      if (!value || value === 'undefined' || value === 'null') return null;
+      const str = String(value).trim();
+      return str && str !== 'undefined' && str !== 'null' ? str : null;
+    };
+
+    // Try different name fields in order of preference
+    const nameFields = [
+      'businessName',
+      'companyName', 
+      'vendorName',
+      'ownerName',
+      'contactPersonName',
+      'name',
+      'fullName',
+      'displayName',
+      'userName'
+    ];
+
+    // Check each field
+    for (const field of nameFields) {
+      const name = safeString(data[field]);
+      if (name) return name;
+    }
+
+    // Try combining first and last name
+    const firstName = safeString(data.firstName);
+    const lastName = safeString(data.lastName);
+    
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    } else if (firstName) {
+      return firstName;
+    } else if (lastName) {
+      return lastName;
+    }
+
+    // Try email as last resort
+    const email = safeString(data.email);
+    if (email && email.includes('@')) {
+      const emailPrefix = email.split('@')[0];
+      if (emailPrefix && emailPrefix !== 'undefined') {
+        return emailPrefix;
+      }
+    }
+
+    return null; // No valid name found
+  };
+
   // Fetch default commission rate and vendor data from Firestore
   const fetchData = async () => {
     setLoading(true);
@@ -371,32 +422,39 @@ const CommissionControl = () => {
       vendorsSnapshot.forEach((doc) => {
         const data = doc.data();
         
-        // Extract vendor name from various possible fields
-        const vendorName = 
-          data.businessName || 
-          data.companyName || 
-          data.vendorName || 
-          data.ownerName || 
-          data.contactPersonName ||
-          data.name ||
-          data.firstName + ' ' + (data.lastName || '') ||
-          data.fullName ||
-          'Unknown Vendor';
+        // Extract vendor name using our safe function
+        const vendorName = extractVendorName(data);
+        
+        // Only process vendors with valid names
+        if (vendorName) {
+          // Use custom commission rate if set, otherwise use default rate
+          const commissionRate = data.commissionRate !== undefined 
+            ? data.commissionRate 
+            : fetchedDefaultRate;
 
-        // Use custom commission rate if set, otherwise use default rate
-        const commissionRate = data.commissionRate !== undefined 
-          ? data.commissionRate 
-          : fetchedDefaultRate;
-
-        fetchedVendors.push({
-          id: doc.id,
-          name: vendorName.trim(),
-          rate: commissionRate,
-          email: data.email || '',
-          phone: data.phone || data.phoneNumber || '',
-          businessType: data.businessType || '',
-          status: data.status || 'active'
-        });
+          fetchedVendors.push({
+            id: doc.id,
+            name: vendorName,
+            rate: commissionRate,
+            email: data.email || '',
+            phone: data.phone || data.phoneNumber || data.mobile || '',
+            businessType: data.businessType || data.category || '',
+            status: data.status || 'active'
+          });
+        } else {
+          // Log vendors that are being excluded
+          console.warn('Vendor excluded due to missing name:', {
+            id: doc.id,
+            availableFields: Object.keys(data),
+            sampleData: {
+              businessName: data.businessName,
+              name: data.name,
+              firstName: data.firstName,
+              lastName: data.lastName,
+              email: data.email
+            }
+          });
+        }
       });
 
       // Sort vendors by name
@@ -412,6 +470,9 @@ const CommissionControl = () => {
           [vendor.id]: vendor.rate
         }), {})
       });
+      
+      console.log(`Loaded ${fetchedVendors.length} vendors with valid names`);
+      
     } catch (err) {
       console.error('Error fetching data:', err);
       setError(err.message);
@@ -450,12 +511,28 @@ const CommissionControl = () => {
     );
   };
 
-  // Filter vendors based on search term
-  const filteredVendors = vendors.filter(vendor =>
-    vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vendor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vendor.phone.includes(searchTerm)
-  );
+  // Filter vendors based on search term - only show vendors with valid names
+  const filteredVendors = vendors.filter(vendor => {
+    // Double-check that vendor has a valid name (shouldn't be needed but extra safety)
+    if (!vendor.name || 
+        vendor.name === 'undefined' || 
+        vendor.name === 'null' ||
+        vendor.name.toLowerCase() === 'undefined' ||
+        vendor.name.toLowerCase() === 'null' ||
+        vendor.name.trim() === '') {
+      return false;
+    }
+
+    // Apply search filter
+    if (!searchTerm.trim()) {
+      return true;
+    }
+
+    const searchLower = searchTerm.toLowerCase();
+    return vendor.name.toLowerCase().includes(searchLower) ||
+           (vendor.email && vendor.email.toLowerCase().includes(searchLower)) ||
+           (vendor.phone && vendor.phone.includes(searchTerm));
+  });
 
   // Update vendor rate locally
   const updateVendorRate = (vendorId, newRate) => {
