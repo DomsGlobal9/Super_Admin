@@ -16,32 +16,50 @@ const Navbar = ({ toggleSidebar }) => {
 // Instead of replacing user object, just update photoURL locally separately
 const [userPhotoURL, setUserPhotoURL] = useState(null);
 
+// useEffect(() => {
+//   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+//     setUser(currentUser);
+//     setUserPhotoURL(currentUser?.photoURL || null);
+//   });
+//   return () => unsubscribe();
+// }, []);
+// In your useEffect, add connection monitoring
 useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (currentUser) {
+      // Verify the user can access Firebase Storage
+      currentUser.getIdToken().then(token => {
+        console.log('Auth token valid:', !!token);
+      }).catch(err => {
+        console.error('Auth token error:', err);
+      });
+    }
+    
     setUser(currentUser);
     setUserPhotoURL(currentUser?.photoURL || null);
   });
+  
   return () => unsubscribe();
 }, []);
 
-const handleImageUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file || !user) return;
+// const handleImageUpload = async (e) => {
+//   const file = e.target.files[0];
+//   if (!file || !user) return;
 
-  setUploading(true);
-  try {
-    const storageRef = ref(storage, `profile_images/${user.uid}`);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
+//   setUploading(true);
+//   try {
+//     const storageRef = ref(storage, `profile_images/${user.uid}`);
+//     await uploadBytes(storageRef, file);
+//     const downloadURL = await getDownloadURL(storageRef);
 
-    await updateProfile(user, { photoURL: downloadURL });
+//     await updateProfile(user, { photoURL: downloadURL });
 
-    setUserPhotoURL(downloadURL);  // update UI photo url separately
-  } catch (err) {
-    console.error("Error uploading image:", err.code, err.message || err);
-  }
-  setUploading(false);
-};
+//     setUserPhotoURL(downloadURL);  // update UI photo url separately
+//   } catch (err) {
+//     console.error("Error uploading image:", err.code, err.message || err);
+//   }
+//   setUploading(false);
+// };
 
 // const handleImageUpload = async (e) => {
 //   const file = e.target.files[0];
@@ -71,6 +89,81 @@ const handleImageUpload = async (e) => {
 //   }
 // };
 
+const handleImageUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file || !user) return;
+
+  // Validate file type and size
+  const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    alert("Please upload an image file (JPEG, PNG, GIF, WebP)");
+    return;
+  }
+  
+  if (file.size > 2 * 1024 * 1024) { // 2MB limit
+    alert("Image size must be less than 2MB");
+    return;
+  }
+
+  setUploading(true);
+
+  try {
+    // Force refresh auth token to ensure we have valid credentials
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("User not authenticated");
+    }
+    
+    // Refresh ID token
+    await currentUser.getIdToken(true);
+    
+    // Create storage reference
+    const storageRef = ref(storage, `profile_images/${currentUser.uid}`);
+    
+    // Upload file with metadata
+    const metadata = {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: currentUser.uid,
+        uploadedAt: new Date().toISOString()
+      }
+    };
+    
+    const uploadResult = await uploadBytes(storageRef, file, metadata);
+    console.log('Upload successful:', uploadResult);
+    
+    // Get download URL
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    console.log('Download URL:', downloadURL);
+    
+    // Update Firebase Auth profile
+    await updateProfile(currentUser, { photoURL: downloadURL });
+    console.log('Profile updated successfully');
+    
+    // Update local state
+    setUserPhotoURL(downloadURL);
+    
+  } catch (err) {
+    console.error("Upload Error Details:", {
+      code: err.code,
+      message: err.message,
+      stack: err.stack
+    });
+    
+    // Handle specific Firebase errors
+    if (err.code === 'storage/unauthorized') {
+      alert('Upload failed: Authentication expired. Please refresh the page and try again.');
+    } else if (err.code === 'storage/quota-exceeded') {
+      alert('Upload failed: Storage quota exceeded.');
+    } else if (err.code === 'storage/invalid-format') {
+      alert('Upload failed: Invalid file format.');
+    } else {
+      alert(`Upload failed: ${err.message || 'Unknown error occurred'}`);
+    }
+  } finally {
+    setUploading(false);
+  }
+};
 
   const handleLogout = async () => {
     try {
