@@ -310,14 +310,14 @@ export default function UploadedProducts() {
           
           <div className="flex items-center gap-3">
             {/* Refresh Button */}
-            <button
+            {/* <button
               onClick={handleRefresh}
               disabled={refreshing}
               className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
+            </button> */}
 
             {/* Filter Dropdown */}
             <div className="relative">

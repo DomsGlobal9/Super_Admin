@@ -42,7 +42,7 @@ const Sidebar = ({ open, setOpen }) => {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 bg-white shadow-md flex-col justify-between">
         <div>
-          <div className="flex items-center justify-center h-16 bg-[#388DCD] text-white font-bold text-xl">
+          <div className="flex items-center justify-center h-16 bg-[rgba(56,141,205,1)] text-white font-bold text-xl">
             <img src={dvyb} className="object-contain" alt="" />
           </div>
           <nav className="mt-4 px-4 space-y-2">

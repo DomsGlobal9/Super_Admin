@@ -240,14 +240,14 @@ const FinanceDashboard = () => {
             </p>
           )}
         </div>
-        <button
+        {/* <button
           onClick={() => fetchAllData(true)}
           disabled={refreshing}
           className="flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
           {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        </button> */}
       </div>
 
       {/* Summary Cards */}

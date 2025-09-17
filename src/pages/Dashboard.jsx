@@ -292,14 +292,14 @@ const Dashboard = () => {
             </p>
           )}
         </div>
-        <button
+        {/* <button
           onClick={() => fetchDashboardData(true)}
           disabled={refreshing}
           className="flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
           {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        </button> */}
       </div>
 
       {/* Top Stats Cards */}
@@ -455,7 +455,7 @@ const Dashboard = () => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Top Performing Vendors</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700" onClick={() => {navigate('/layout/vendor-management')}} > <span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" /></span></button>
+              <button className="text-sm text-blue-600 hover:text-blue-700 h-10" onClick={() => {navigate('/layout/vendor-management')}} > <span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" className="h-5"/></span></button>
             </div>
           </div>
           
@@ -487,7 +487,7 @@ const Dashboard = () => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Recent Alerts</h2>
-              <button className="text-sm text-blue-600 hover:text-blue-700"  onClick={() => {navigate('/layout/notifications')}}><span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" /></span></button>
+              <button className="text-sm text-blue-600 hover:text-blue-700"  onClick={() => {navigate('/layout/notifications')}}><span className='flex flex-row text-black gap-2'>View All <img src={right_arrow} alt="" className='h-5 '/></span></button>
             </div>
           </div>
           

@@ -1,5 +1,5 @@
 import { Bell, Menu, LogOut, X, Upload } from "lucide-react";
-import dvyb from "../assets/dvybeLogo.png";
+import dvyb from "../assets/mobile_logo_dvyb.svg";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { auth, storage } from "../firebaseConfig";

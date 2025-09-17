@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import Paper from "../assets/paper.png"
+import Paper from "../assets/paper.png";
 import IC1 from "../assets/ic_customer1.png";
 import kyc1 from "../assets/kyc1.png";
 import kyc2 from "../assets/kyc2.png";
@@ -31,7 +31,9 @@ function Badge({ tone = "default", children }) {
     info: `bg-blue-50 text-blue-700`,
   };
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${map[tone]}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${map[tone]}`}
+    >
       {children}
     </span>
   );
@@ -42,8 +44,12 @@ function StatCard({ icon: Icon, label, value }) {
     <div className="bg-white p-3 sm:p-4 lg:p-5 rounded-lg shadow-sm transition-all hover:shadow-md">
       <div className="flex items-center justify-between">
         <div className="min-w-0 flex-1">
-          <div className="text-xs sm:text-sm text-slate-500 truncate">{label}</div>
-          <div className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{value}</div>
+          <div className="text-xs sm:text-sm text-slate-500 truncate">
+            {label}
+          </div>
+          <div className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">
+            {value}
+          </div>
         </div>
         <div className="ml-2 flex-shrink-0 p-2">
           <img src={IC1} alt="" className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -59,11 +65,25 @@ function MobileTable({ columns, rows, renderActions, title }) {
       {rows.map((row, idx) => (
         <div key={idx} className="bg-white rounded-lg p-4 shadow-sm border">
           {columns.map((col, colIdx) => (
-            <div key={col} className={`flex justify-between items-start ${colIdx !== columns.length - 1 ? 'mb-2' : ''}`}>
+            <div
+              key={col}
+              className={`flex justify-between items-start ${
+                colIdx !== columns.length - 1 ? "mb-2" : ""
+              }`}
+            >
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide min-w-0 flex-1 mr-2">
                 {col}:
               </span>
-              <div className="text-sm text-slate-700 text-right flex-shrink-0">
+              {/* <div className="text-sm text-slate-700 text-right flex-shrink-0">
+                {row[col]}
+              </div> */}
+               <div
+                className={`text-sm text-slate-700 text-right ${
+                  col === "DOCUMENTTYPE"
+                    ? "whitespace-normal break-words text-left flex-1"
+                    : "whitespace-nowrap flex-shrink-0"
+                }`}
+              >
                 {row[col]}
               </div>
             </div>
@@ -85,7 +105,14 @@ function DesktopTable({ columns, rows, renderActions }) {
       <div className="min-w-full">
         <div className="grid gap-1">
           {/* Header */}
-          <div className="grid gap-2 sm:gap-4 px-3 sm:px-4 py-3 bg-slate-50 rounded-t-lg" style={{gridTemplateColumns: `repeat(${columns.length + (renderActions ? 1 : 0)}, minmax(0, 1fr))`}}>
+          <div
+            className="grid gap-2 sm:gap-4 px-3 sm:px-4 py-3 bg-slate-50 rounded-t-lg"
+            style={{
+              gridTemplateColumns: `repeat(${
+                columns.length + (renderActions ? 1 : 0)
+              }, minmax(0, 1fr))`,
+            }}
+          >
             {columns.map((c) => (
               <div
                 key={c}
@@ -96,13 +123,17 @@ function DesktopTable({ columns, rows, renderActions }) {
             ))}
             {renderActions && <div />}
           </div>
-          
+
           {/* Rows */}
           {rows.map((row, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className="grid gap-2 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 bg-white hover:bg-slate-50 transition-colors"
-              style={{gridTemplateColumns: `repeat(${columns.length + (renderActions ? 1 : 0)}, minmax(0, 1fr))`}}
+              style={{
+                gridTemplateColumns: `repeat(${
+                  columns.length + (renderActions ? 1 : 0)
+                }, minmax(0, 1fr))`,
+              }}
             >
               {columns.map((c) => (
                 <div
@@ -128,22 +159,41 @@ function DesktopTable({ columns, rows, renderActions }) {
 function Table({ columns, rows, renderActions, title }) {
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <MobileTable columns={columns} rows={rows} renderActions={renderActions} title={title} />
-      <DesktopTable columns={columns} rows={rows} renderActions={renderActions} />
+      <MobileTable
+        columns={columns}
+        rows={rows}
+        renderActions={renderActions}
+        title={title}
+      />
+      <DesktopTable
+        columns={columns}
+        rows={rows}
+        renderActions={renderActions}
+      />
     </div>
   );
 }
 
-function ModalShell({ open, onClose, title, children, maxWidth = "max-w-4xl" }) {
+function ModalShell({
+  open,
+  onClose,
+  title,
+  children,
+  maxWidth = "max-w-4xl",
+}) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 p-2 sm:p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className={`relative mx-auto ${maxWidth} bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto`}>
+      <div
+        className={`relative mx-auto ${maxWidth} bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto`}
+      >
         <div className="sticky top-0 bg-white rounded-t-xl p-4 sm:p-6 border-b">
           <div className="flex items-start justify-between gap-4">
-            <h3 className="text-lg font-semibold text-slate-900 pr-8">{title}</h3>
+            <h3 className="text-lg font-semibold text-slate-900 pr-8">
+              {title}
+            </h3>
             <button
               onClick={onClose}
               className="absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 transition"
@@ -161,7 +211,12 @@ function ModalShell({ open, onClose, title, children, maxWidth = "max-w-4xl" }) 
 
 function DocumentModal({ open, onClose, onDecision }) {
   return (
-    <ModalShell open={open} onClose={onClose} title="Business Registration Certificate" maxWidth="max-w-5xl">
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      title="Business Registration Certificate"
+      maxWidth="max-w-5xl"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         {/* Left */}
         <div className="lg:col-span-7">
@@ -170,7 +225,11 @@ function DocumentModal({ open, onClose, onDecision }) {
             <Download className="h-4 w-4" /> Download Full Document
           </button>
           <div className="aspect-video w-full rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center">
-            <img src={Paper} alt="Document preview" className="max-w-full max-h-full object-contain" />
+            <img
+              src={Paper}
+              alt="Document preview"
+              className="max-w-full max-h-full object-contain"
+            />
           </div>
         </div>
         {/* Right */}
@@ -178,11 +237,15 @@ function DocumentModal({ open, onClose, onDecision }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 text-sm mb-6">
             <div>
               <div className="text-slate-500 text-xs mb-1">Vendor Name</div>
-              <div className="font-medium text-slate-800">Tech Solutions Inc.</div>
+              <div className="font-medium text-slate-800">
+                Tech Solutions Inc.
+              </div>
             </div>
             <div>
               <div className="text-slate-500 text-xs mb-1">Document Type</div>
-              <div className="font-medium text-slate-800">Business Registration</div>
+              <div className="font-medium text-slate-800">
+                Business Registration
+              </div>
             </div>
             <div>
               <div className="text-slate-500 text-xs mb-1">File Size</div>
@@ -237,7 +300,9 @@ function KYCReviewModal({ open, onClose, onDecision }) {
             ✕
           </button>
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 pr-8">KYC Review</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 pr-8">
+              KYC Review
+            </h1>
             <p className="text-gray-500 mt-1">Vendor: Tech Solutions Inc.</p>
           </div>
         </div>
@@ -272,8 +337,16 @@ function KYCReviewModal({ open, onClose, onDecision }) {
               {[
                 { name: "Business License", status: "Submitted", src: kyc1 },
                 { name: "Tax ID", status: "Submitted", src: kyc2 },
-                { name: "Financial Statements", status: "Submitted", src: kyc3 },
-                { name: "Insurance Certificate", status: "Submitted", src: kyc4 },
+                {
+                  name: "Financial Statements",
+                  status: "Submitted",
+                  src: kyc3,
+                },
+                {
+                  name: "Insurance Certificate",
+                  status: "Submitted",
+                  src: kyc4,
+                },
                 { name: "Compliance Report", status: "Submitted", src: kyc5 },
               ].map((doc, idx) => (
                 <div
@@ -281,9 +354,16 @@ function KYCReviewModal({ open, onClose, onDecision }) {
                   className="bg-white shadow-sm rounded-lg p-3 text-center"
                 >
                   <div className="mb-2">
-                    <img src={doc.src} alt="" className="w-full h-12 sm:h-16 object-cover rounded-md" />
+                    <img
+                      src={doc.src}
+                      alt=""
+                      className="w-full h-12 sm:h-16 object-cover rounded-md"
+                    />
                   </div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-800 truncate" title={doc.name}>
+                  <p
+                    className="text-xs sm:text-sm font-medium text-gray-800 truncate"
+                    title={doc.name}
+                  >
                     {doc.name}
                   </p>
                   <p className="text-xs text-green-600">{doc.status}</p>
@@ -295,10 +375,12 @@ function KYCReviewModal({ open, onClose, onDecision }) {
           {/* Progress */}
           <div className="space-y-2 text-xs sm:text-sm">
             <p className="text-gray-700">
-              <span className="font-medium">KYC Progress:</span> Submitted: 07/15/2024 | Expected: 07/22/2024
+              <span className="font-medium">KYC Progress:</span> Submitted:
+              07/15/2024 | Expected: 07/22/2024
             </p>
             <p className="text-gray-700">
-              <span className="font-medium">Assigned Reviewer:</span> Emily Carter
+              <span className="font-medium">Assigned Reviewer:</span> Emily
+              Carter
             </p>
           </div>
         </div>
@@ -341,13 +423,19 @@ function StatusModal({ open, onClose, status = "approved" }) {
             <AlertCircle className="h-8 w-8 text-red-600" />
           )}
         </div>
-        <div className={`text-xl font-semibold ${isApproved ? "text-green-600" : "text-red-600"}`}>
+        <div
+          className={`text-xl font-semibold ${
+            isApproved ? "text-green-600" : "text-red-600"
+          }`}
+        >
           {isApproved ? "Approved" : "Rejected"}
         </div>
         <div className="mt-1 text-sm text-slate-500">
           Your request has been {isApproved ? "approved" : "rejected"}
         </div>
-        <div className="text-xs text-slate-400 mt-2">Shortly you will find a confirmation in your email.</div>
+        <div className="text-xs text-slate-400 mt-2">
+          Shortly you will find a confirmation in your email.
+        </div>
         <button
           onClick={onClose}
           className="mt-4 w-full inline-flex items-center justify-center bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 transition rounded"
@@ -462,9 +550,9 @@ export default function Compliance() {
   const [kycOpen, setKycOpen] = useState(false);
   const [status, setStatus] = useState(null);
 
-  const [docFilter, setDocFilter] = useState('All');
+  const [docFilter, setDocFilter] = useState("All");
   const [docFilterOpen, setDocFilterOpen] = useState(false);
-  const [kycFilter, setKycFilter] = useState('All');
+  const [kycFilter, setKycFilter] = useState("All");
   const [kycFilterOpen, setKycFilterOpen] = useState(false);
 
   const closeStatus = () => setStatus(null);
@@ -480,20 +568,22 @@ export default function Compliance() {
   );
 
   const filteredDocRows = docRows.filter(
-    row => docFilter === "All" || row.status === docFilter
+    (row) => docFilter === "All" || row.status === docFilter
   );
 
   const filteredKycRows = kycRows.filter(
-    row => kycFilter === "All" || row.status === kycFilter
+    (row) => kycFilter === "All" || row.status === kycFilter
   );
 
-  const docFilterOptions = ['All', 'Active', 'Pending', 'Declined'];
-  const kycFilterOptions = ['All', 'Active', 'Pending Review', 'Declined'];
+  const docFilterOptions = ["All", "Active", "Pending", "Declined"];
+  const kycFilterOptions = ["All", "Active", "Pending Review", "Declined"];
 
   return (
     <div className="min-h-screen bg-slate-50 pb-8">
       <header className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
-        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900">Compliance Management</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900">
+          Compliance Management
+        </h2>
         <p className="mt-1 text-xs sm:text-sm text-slate-600">
           Monitor vendor documentation and KYC processes
         </p>
@@ -511,18 +601,22 @@ export default function Compliance() {
         <section>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             <div className="min-w-0 flex-1">
-              <div className="text-base font-semibold text-slate-800">Document Review</div>
-              <div className="text-xs text-slate-500 mt-1">Vendor compliance documents requiring attention</div>
+              <div className="text-base font-semibold text-slate-800">
+                Document Review
+              </div>
+              <div className="text-xs text-slate-500 mt-1">
+                Vendor compliance documents requiring attention
+              </div>
             </div>
-            <div className="relative flex-shrink-0">
+            {/* <div className="relative flex-shrink-0">
               <button 
                 onClick={() => setDocFilterOpen(!docFilterOpen)}
                 className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 transition rounded border"
               >
-                Filter: {docFilter} <ChevronDown className="h-3 w-3" />
+                Filter: {docFilter} <ChevronDown className="h-3 w-3 " />
               </button>
               {docFilterOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10 border">
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10 border sm:left-[-30px]">
                   <ul className="py-1">
                     {docFilterOptions.map(option => (
                       <li 
@@ -536,11 +630,44 @@ export default function Compliance() {
                   </ul>
                 </div>
               )}
+            </div> */}
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setDocFilterOpen(!docFilterOpen)}
+                className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 transition rounded border"
+              >
+                Filter: {docFilter} <ChevronDown className="h-3 w-3 " />
+              </button>
+              {docFilterOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10 border md:right-0 md:left-auto">
+                  <ul className="py-1">
+                    {docFilterOptions.map((option) => (
+                      <li
+                        key={option}
+                        onClick={() => {
+                          setDocFilter(option);
+                          setDocFilterOpen(false);
+                        }}
+                        className="px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 cursor-pointer"
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
 
           <Table
-            columns={["DOCUMENTID", "VENDOR", "CITY", "EXPDATE", "REVIEWEDBY", "STATUS"]}
+            columns={[
+              "DOCUMENTID",
+              "VENDOR",
+              "CITY",
+              "EXPDATE",
+              "REVIEWEDBY",
+              "STATUS",
+            ]}
             rows={filteredDocRows}
             title="Document Review"
             renderActions={() => (
@@ -556,13 +683,17 @@ export default function Compliance() {
 
         {/* KYC Verification Requests */}
         <section>
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+          {/* <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             <div className="min-w-0 flex-1">
-              <div className="text-base font-semibold text-slate-800">KYC Verification Requests</div>
-              <div className="text-xs text-slate-500 mt-1">New vendor onboarding and verification</div>
+              <div className="text-base font-semibold text-slate-800">
+                KYC Verification Requests
+              </div>
+              <div className="text-xs text-slate-500 mt-1">
+                New vendor onboarding and verification
+              </div>
             </div>
             <div className="relative flex-shrink-0">
-              <button 
+              <button
                 onClick={() => setKycFilterOpen(!kycFilterOpen)}
                 className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 transition rounded border"
               >
@@ -571,10 +702,49 @@ export default function Compliance() {
               {kycFilterOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10 border">
                   <ul className="py-1">
-                    {kycFilterOptions.map(option => (
-                      <li 
+                    {kycFilterOptions.map((option) => (
+                      <li
                         key={option}
-                        onClick={() => { setKycFilter(option); setKycFilterOpen(false); }}
+                        onClick={() => {
+                          setKycFilter(option);
+                          setKycFilterOpen(false);
+                        }}
+                        className="px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 cursor-pointer"
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div> */}
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="text-base font-semibold text-slate-800">
+                KYC Verification Requests
+              </div>
+              <div className="text-xs text-slate-500 mt-1">
+                New vendor onboarding and verification
+              </div>
+            </div>
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setKycFilterOpen(!kycFilterOpen)}
+                className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 transition rounded border"
+              >
+                Filter: {kycFilter} <ChevronDown className="h-3 w-3" />
+              </button>
+              {kycFilterOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md z-10 border md:right-0 md:left-auto">
+                  <ul className="py-1">
+                    {kycFilterOptions.map((option) => (
+                      <li
+                        key={option}
+                        onClick={() => {
+                          setKycFilter(option);
+                          setKycFilterOpen(false);
+                        }}
                         className="px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 cursor-pointer"
                       >
                         {option}
@@ -587,7 +757,15 @@ export default function Compliance() {
           </div>
 
           <Table
-            columns={["KYCID", "VENDOR", "DOCUMENTTYPE", "REQUESTDATE", "ASSIGNEDTO", "STATUS"]}
+           className="min-w-full table-auto border-collapse"
+            columns={[
+              "KYCID",
+              "VENDOR",
+              "DOCUMENTTYPE",
+              "REQUESTDATE",
+              "ASSIGNEDTO",
+              "STATUS",
+            ]}
             rows={filteredKycRows}
             title="KYC Verification"
             renderActions={() => (
@@ -603,8 +781,12 @@ export default function Compliance() {
 
         {/* Compliance Alerts */}
         <section>
-          <div className="text-base font-semibold text-slate-800">Compliance Alerts</div>
-          <div className="text-xs text-slate-500 mb-4">Important notifications requiring immediate attention</div>
+          <div className="text-base font-semibold text-slate-800">
+            Compliance Alerts
+          </div>
+          <div className="text-xs text-slate-500 mb-4">
+            Important notifications requiring immediate attention
+          </div>
 
           <div className="space-y-2 sm:space-y-3">
             <div className="bg-yellow-50 border border-yellow-200 px-3 sm:px-4 py-3 rounded-lg text-xs sm:text-sm text-yellow-800">
@@ -648,7 +830,11 @@ export default function Compliance() {
         }}
       />
 
-      <StatusModal open={!!status} status={status || "approved"} onClose={closeStatus} />
+      <StatusModal
+        open={!!status}
+        status={status || "approved"}
+        onClose={closeStatus}
+      />
     </div>
   );
 }
