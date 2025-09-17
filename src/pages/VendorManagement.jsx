@@ -332,7 +332,7 @@ export default function VendorManagement() {
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Vendor Management</h2>
           {lastUpdated && (
             <p className="text-sm text-green-600 mt-1">
-              Last updated: {lastUpdated.toLocaleTimeString()} - Live data from Firestore
+              Last updated: {lastUpdated.toLocaleTimeString()} 
             </p>
           )}
         </div>

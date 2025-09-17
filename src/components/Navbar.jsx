@@ -43,6 +43,33 @@ const handleImageUpload = async (e) => {
   setUploading(false);
 };
 
+// const handleImageUpload = async (e) => {
+//   const file = e.target.files[0];
+//   if (!file || !user) return;
+
+//   setUploading(true);
+//   try {
+//     // Force refresh ID token before upload
+//     const idToken = await user.getIdToken(true);  // 'true' forces refresh
+//     console.log('Refreshed ID Token:', idToken ? 'Valid' : 'Invalid');  // Debug log
+
+//     const storageRef = ref(storage, `profile_images/${user.uid}`);
+//     await uploadBytes(storageRef, file, { customMetadata: { firebaseStorageDownloadTokens: user.uid } });  // Optional: Add token for better access
+//     const downloadURL = await getDownloadURL(storageRef);
+
+//     await updateProfile(user, { photoURL: downloadURL });
+//     setUserPhotoURL(downloadURL);
+//   } catch (err) {
+//     console.error("Upload Error:", err);
+//     if (err.code === 'storage/unauthorized') {
+//       // Force re-auth on unauthorized
+//       await auth.currentUser?.getIdToken(true);
+//       alert('Auth expired. Please refresh the page.');
+//     }
+//   } finally {
+//     setUploading(false);
+//   }
+// };
 
 
   const handleLogout = async () => {

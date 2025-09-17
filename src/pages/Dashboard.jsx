@@ -288,7 +288,7 @@ const Dashboard = () => {
           <h1 className="text-2xl  font-bold text-gray-900">Dashboard</h1>
           {lastUpdated && (
             <p className="text-sm text-green-600 mt-1">
-              Last updated: {lastUpdated.toLocaleTimeString()} - Live data from Firestore
+              Last updated: {lastUpdated.toLocaleTimeString()} 
             </p>
           )}
         </div>
