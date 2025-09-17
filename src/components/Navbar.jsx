@@ -88,53 +88,44 @@ useEffect(() => {
 //     setUploading(false);
 //   }
 // };
-
-const uploadWithRetry = async (file, user, retries = 3) => {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      console.log(`Upload attempt ${attempt}/${retries}`);
-      
-      // Refresh auth token on each attempt
-      await user.getIdToken(true);
-      
-      const storageRef = ref(storage, `profile_images/${user.uid}`);
-      const uploadResult = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(uploadResult.ref);
-      
-      return downloadURL;
-      
-    } catch (error) {
-      console.error(`Attempt ${attempt} failed:`, error);
-      
-      if (attempt === retries) {
-        throw error; // Final attempt failed
-      }
-      
-      // Wait before retrying (exponential backoff)
-      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-    }
-  }
-};
-
 const handleImageUpload = async (e) => {
   const file = e.target.files[0];
   if (!file || !user) return;
 
-  // Validation code here...
+  // Validate file
+  const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    alert("Please upload an image file (JPEG, PNG, GIF, WebP)");
+    return;
+  }
   
+  if (file.size > 2 * 1024 * 1024) {
+    alert("Image size must be less than 2MB");
+    return;
+  }
+
   setUploading(true);
-  
+
   try {
-    const downloadURL = await uploadWithRetry(file, user);
+    // Ensure we have a valid auth token
+    await user.getIdToken(true);
     
+    // Create storage reference and upload
+    const storageRef = ref(storage, `profile_images/${user.uid}`);
+    const uploadResult = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    
+    // Update user profile
     await updateProfile(user, { photoURL: downloadURL });
+    
+    // Update local state
     setUserPhotoURL(downloadURL);
     
-    console.log('Upload successful!');
+    console.log('✅ Upload successful!');
     
   } catch (err) {
-    console.error("Final upload error:", err);
-    alert(`Upload failed after multiple attempts: ${err.message}`);
+    console.error("Upload error:", err);
+    alert(`Upload failed: ${err.message}`);
   } finally {
     setUploading(false);
   }
