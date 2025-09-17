@@ -89,77 +89,52 @@ useEffect(() => {
 //   }
 // };
 
+const uploadWithRetry = async (file, user, retries = 3) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`Upload attempt ${attempt}/${retries}`);
+      
+      // Refresh auth token on each attempt
+      await user.getIdToken(true);
+      
+      const storageRef = ref(storage, `profile_images/${user.uid}`);
+      const uploadResult = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(uploadResult.ref);
+      
+      return downloadURL;
+      
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error);
+      
+      if (attempt === retries) {
+        throw error; // Final attempt failed
+      }
+      
+      // Wait before retrying (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+};
+
 const handleImageUpload = async (e) => {
   const file = e.target.files[0];
   if (!file || !user) return;
 
-  // Validate file type and size
-  const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-  if (!allowedTypes.includes(file.type)) {
-    alert("Please upload an image file (JPEG, PNG, GIF, WebP)");
-    return;
-  }
+  // Validation code here...
   
-  if (file.size > 2 * 1024 * 1024) { // 2MB limit
-    alert("Image size must be less than 2MB");
-    return;
-  }
-
   setUploading(true);
-
+  
   try {
-    // Force refresh auth token to ensure we have valid credentials
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      throw new Error("User not authenticated");
-    }
+    const downloadURL = await uploadWithRetry(file, user);
     
-    // Refresh ID token
-    await currentUser.getIdToken(true);
-    
-    // Create storage reference
-    const storageRef = ref(storage, `profile_images/${currentUser.uid}`);
-    
-    // Upload file with metadata
-    const metadata = {
-      contentType: file.type,
-      customMetadata: {
-        uploadedBy: currentUser.uid,
-        uploadedAt: new Date().toISOString()
-      }
-    };
-    
-    const uploadResult = await uploadBytes(storageRef, file, metadata);
-    console.log('Upload successful:', uploadResult);
-    
-    // Get download URL
-    const downloadURL = await getDownloadURL(uploadResult.ref);
-    console.log('Download URL:', downloadURL);
-    
-    // Update Firebase Auth profile
-    await updateProfile(currentUser, { photoURL: downloadURL });
-    console.log('Profile updated successfully');
-    
-    // Update local state
+    await updateProfile(user, { photoURL: downloadURL });
     setUserPhotoURL(downloadURL);
     
-  } catch (err) {
-    console.error("Upload Error Details:", {
-      code: err.code,
-      message: err.message,
-      stack: err.stack
-    });
+    console.log('Upload successful!');
     
-    // Handle specific Firebase errors
-    if (err.code === 'storage/unauthorized') {
-      alert('Upload failed: Authentication expired. Please refresh the page and try again.');
-    } else if (err.code === 'storage/quota-exceeded') {
-      alert('Upload failed: Storage quota exceeded.');
-    } else if (err.code === 'storage/invalid-format') {
-      alert('Upload failed: Invalid file format.');
-    } else {
-      alert(`Upload failed: ${err.message || 'Unknown error occurred'}`);
-    }
+  } catch (err) {
+    console.error("Final upload error:", err);
+    alert(`Upload failed after multiple attempts: ${err.message}`);
   } finally {
     setUploading(false);
   }
