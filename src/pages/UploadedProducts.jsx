@@ -680,7 +680,7 @@ export default function UploadedProducts() {
             </div>
 
             {/* Right side - Product image */}
-            <div className="flex justify-center items-start">
+            <div className="flex justify-center items-start pt-15">
               <div className="w-80 h-56 flex items-center justify-center">
                 <div className="text-center text-gray-400">
                   {selectedProduct.imageUrls && selectedProduct.imageUrls.length > 0 ? (
@@ -735,14 +735,14 @@ export default function UploadedProducts() {
             <h1 className="text-2xl font-bold text-gray-900">Uploaded Products</h1>
             <p className="text-sm mt-4 text-gray-600 mt-1">Monitor and manage bulk product uploads from vendors</p>
           </div>
-          {currentView !== 'dashboard' && (
+          {/* {currentView !== 'dashboard' && (
             <button 
               onClick={() => setCurrentView('dashboard')}
               className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
             >
               ← Back to Dashboard
             </button>
-          )}
+          )} */}
         </div>
 
         {/* Stats Cards */}
