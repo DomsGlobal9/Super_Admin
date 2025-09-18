@@ -227,9 +227,9 @@ const handleImageUpload = async (e) => {
           onClick={() => navigate("/layout/notifications")}
         >
           <Bell className="text-gray-600" size={22} />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+          {/* <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
             6
-          </span>
+          </span> */}
         </div>
         {/* Profile */}
         <div
